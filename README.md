@@ -1,2 +1,22 @@
-# riskfate-the-living-guild
-A fantasy guild management simulation featuring autonomous heroes, a living economy, and an evolving settlement.
+# Riskfate: The Living Guild
+
+Браузерна фентезійна онлайн-RPG про управління гільдією автономних героїв і взаємопов'язаною економікою.
+
+## Вебпрототип
+- [Відкрити інтерактивний UI-прототип](https://levian47.github.io/riskfate-the-living-guild/)
+- Локальний запуск: відкрити `index.html` у сучасному браузері.
+- Поточна реалізація — **демонстраційний інтерфейс без серверної онлайн-гри та реального спільного ринку**. Умовні ресурси, герої, числа й дії не є затвердженим балансом.
+
+## Документація
+| Документ | Призначення |
+| --- | --- |
+| [AGENTS.md](AGENTS.md) | Загальні правила розробки, повноваження, перевірки та GitHub |
+| [GAME_CONCEPT.md](GAME_CONCEPT.md) | Концепція, герої, гільдія, економіка, механіки й відкриті питання |
+| [GRAPHICS_GUIDELINES.md](GRAPHICS_GUIDELINES.md) | Стандарти графіки та браузерного інтерфейсу |
+| [TECHNICAL_FOUNDATION.md](TECHNICAL_FOUNDATION.md) | Технічні принципи, серверна модель, надійність і безпека |
+| [ROADMAP.md](ROADMAP.md) | Фактичний стан, майбутні етапи та критерії приймання |
+
+Це окремий проєкт; правила і стан Riskfate 3D Pro не переносяться сюди автоматично.
+
+## Репозиторій
+Офіційний репозиторій — [levian47/riskfate-the-living-guild](https://github.com/levian47/riskfate-the-living-guild), основна гілка `main`.
