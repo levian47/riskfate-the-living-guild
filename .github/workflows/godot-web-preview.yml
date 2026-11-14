@@ -151,11 +151,13 @@ jobs:
         run: |
           set -euo pipefail
           BASE="https://raw.githack.com/levian47/riskfate-the-living-guild/preview/godot-pr16-web/godot-preview"
-          curl --fail --silent --show-error --location --retry 5 --retry-delay 3 \
-            "$BASE/index.html" -o "$RUNNER_TEMP/external-preview.html"
+          # A CDN can briefly return 403 while the new commit propagates.
+          curl --fail --silent --show-error --location --retry-all-errors \
+            --retry 8 --retry-delay 3 "$BASE/index.html" -o "$RUNNER_TEMP/external-preview.html"
           test -s "$RUNNER_TEMP/external-preview.html"
-          curl --fail --silent --show-error --location --head --retry 5 --retry-delay 3 \
-            "$BASE/index.wasm" -o "$RUNNER_TEMP/external-wasm.headers"
-          curl --fail --silent --show-error --location --head --retry 5 --retry-delay 3 \
-            "$BASE/index.pck" -o "$RUNNER_TEMP/external-pck.headers"
+          for asset in index.wasm index.pck index.js; do
+            curl --fail --silent --show-error --location --head --retry-all-errors \
+              --retry 8 --retry-delay 3 "$BASE/$asset" -o "$RUNNER_TEMP/$asset.headers"
+          done
+          grep -qi 'content-type: *text/html' <(curl --silent --location --head "$BASE/index.html")
           echo "Verified public Web preview: $BASE/index.html"
