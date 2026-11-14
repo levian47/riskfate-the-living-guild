@@ -875,8 +875,11 @@ function heroCycleReconcile(i){
  if(!c.active)return;
  const t=heroCycleThresholds(i);
  if(!t){
-  c.phase='prepare';
-  c.reason='Встанови і збережи обидва пороги для всіх чотирьох ресурсів. Без цього автоматичний перехід заблоковано.';
+  // Updating settings must not end an ongoing fight.
+  if(c.phase!=='combat')c.phase='prepare';
+  c.reason=c.phase==='combat'
+   ?'Пороги не повністю налаштовані. Поточний тестовий бій триває, а оцінка переходів призупинена.'
+   :'Встанови і збережи обидва пороги для всіх чотирьох ресурсів. Без цього автоматичний перехід заблоковано.';
   return;
  }
  const keys=HERO_METRIC_THRESHOLDS.map(([key])=>key);
