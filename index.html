@@ -25,12 +25,13 @@
 .hero-monitor summary{cursor:pointer;list-style:none}.hero-monitor summary::-webkit-details-marker{display:none}.hero-monitor summary:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}.hero-collapse-chevron{display:flex;color:var(--gold);transition:transform .16s}.hero-monitor[open] .hero-collapse-chevron{transform:rotate(180deg)}
 .city-layout .stack{min-width:0}
 .city-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:10px;padding:15px}
-.city-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;padding:16px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);color:var(--text);min-height:155px}
+.city-card{width:100%;display:flex;flex-direction:row;align-items:center;text-align:left;gap:10px;padding:9px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);min-height:68px}
 .city-card:hover,.catalog-entry:hover,.zone-card:hover{border-color:var(--gold);background:#2a2d2f}
 .city-card strong{font-size:11.025px;color:#f0e8dc}
 .city-card small{font-size:8.6625px;color:var(--muted);line-height:1.5}
-.city-card-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;background:rgba(201,164,106,.10);color:var(--gold)}
-.city-card.city-add{border-style:dashed;justify-content:center}
+.city-card-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:46px;border-radius:8px;background:rgba(201,164,106,.10);color:var(--gold)}
+.city-card-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.city-card.city-add{border-style:dashed}
 .city-preview-tag{font-size:7.875px;color:var(--gold)}
 .minihero-list{padding:11px;display:grid;gap:7px}
 .mini-hero{width:100%;display:flex;gap:10px;align-items:center;text-align:left;padding:9px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);min-height:68px}
@@ -58,7 +59,7 @@
  .mobile-main-nav .nav-button{display:flex;flex:0 0 auto;width:auto;min-width:120px;justify-content:center;gap:7px;min-height:38px;padding:8px 13px;border-radius:8px;font-size:9.45px;white-space:nowrap}
  .mobile-main-nav .nav-button svg{width:15px;height:15px}
  .city-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:11px}
- .city-card{min-height:143px;padding:11px}
+ .city-card{min-height:68px;padding:9px}
  .city-card small{font-size:7.875px}
  .city-layout{gap:12px}
  .minihero-list{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -80,10 +81,10 @@
  .panel-body{padding:13px}
  .city-layout{grid-template-areas:"heroes" "main" "events";grid-template-rows:auto;gap:12px}
  .city-cards{gap:9px;padding:10px}
- .city-card{min-height:118px;padding:12px;gap:6px}
+ .city-card{min-height:64px;padding:9px;gap:9px}
  .city-card strong{font-size:11.8125px;line-height:1.25}
  .city-card small{font-size:10.2375px;line-height:1.3}
- .city-card-icon{width:34px;height:34px}
+ .city-card-icon{flex-basis:40px;width:40px;height:44px}
  .city-card-icon svg{width:21px;height:21px}
  .minihero-list{padding:10px;gap:8px}
  .mini-hero{min-height:64px;padding:8px;gap:9px}
@@ -193,8 +194,8 @@ function render(){
 }
 function cityBuildings(){
  const current=buildings.concat(BUILDING_CATALOG.filter(b=>state.addedBuildings.includes(b[3])));
- const items=current.map(([ico,name,description,target])=>'<button class="city-card" type="button" data-building="'+target+'"><span class="city-card-icon">'+icon(ico,25)+'</span><strong>'+safe(name)+'</strong><small>'+safe(description)+'</small>'+(state.addedBuildings.includes(target)?'<span class="city-preview-tag">Додано для тесту</span>':'')+'</button>').join('');
- return items+'<button class="city-card city-add" type="button" data-buildcatalog="1" aria-label="Додати будівлю"><span class="city-card-icon">'+icon('plus',29)+'</span><strong>Додати будівлю</strong><small>Відкрити каталог міських об’єктів</small></button>'
+ const items=current.map(([ico,name,description,target])=>'<button class="city-card" type="button" data-building="'+target+'"><span class="city-card-icon" aria-hidden="true">'+icon(ico,25)+'</span><span class="city-card-copy"><strong>'+safe(name)+'</strong><small>'+safe(description)+'</small>'+(state.addedBuildings.includes(target)?'<span class="city-preview-tag">Додано для тесту</span>':'')+'</span></button>').join('');
+ return items+'<button class="city-card city-add" type="button" data-buildcatalog="1" aria-label="Додати будівлю"><span class="city-card-icon" aria-hidden="true">'+icon('plus',29)+'</span><span class="city-card-copy"><strong>Додати будівлю</strong><small>Відкрити каталог міських об’єктів</small></span></button>'
 }
 function miniHero(h,i){
  const location=h.state.includes('·')?h.state.split('·').slice(1).join('·').trim():h.state;
