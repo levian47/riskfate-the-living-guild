@@ -340,6 +340,12 @@ const BUILDING_CATALOG=[
  ['package','Крамниця припасів','Витратні предмети для експедицій','supplies']
 ];
 const HEROES=[{name:'Торен',cls:'Воїн',level:8,state:'Полює · Темний ліс',hp:72,mp:35,mpmax:60,command:[]},{name:'Еліра',cls:'Мисливиця',level:6,state:'Повертається до міста',hp:46,mp:38,mpmax:50,command:[]},{name:'Бран',cls:'Збирач',level:4,state:'Відпочиває у таверні',hp:91,mp:22,mpmax:40,command:[]}];
+// UI preview options only; these are not an approved exhaustive list of weapon types.
+const RPG_MASTERY_WEAPON_PREVIEW=[
+ ['sword','Меч'],
+ ['bow','Лук'],
+ ['staff','Посох']
+];
 const DEMO_HERO_NEEDS=[[64,81],[23,57],[88,69]];
 const INITIAL_INVENTORY=[['Залізна руда','Сировина',86,'шт.'],['Деревина','Сировина',48,'шт.'],['Лікарські трави','Сировина',34,'шт.'],['Шкіра вовка','Трофеї',21,'шт.'],['Малий еліксир здоров’я','Витратні',12,'шт.'],['Залізний меч','Спорядження',3,'шт.'],['Шкіряний обладунок','Спорядження',2,'шт.']];
 const RECIPES=[{id:'sword',name:'Залізний меч',cost:'4 залізної руди · 2 деревини',use:{'Залізна руда':4,'Деревина':2},time:12,icon:'sword'},{id:'potion',name:'Малий еліксир здоров’я',cost:'3 лікарські трави',use:{'Лікарські трави':3},time:7,icon:'flask'},{id:'armor',name:'Шкіряний обладунок',cost:'5 шкур вовка',use:{'Шкіра вовка':5},time:18,icon:'shield'}];
@@ -465,12 +471,6 @@ function rpgSlotPanel(title,category,description){
  </section>`;
 }
 
-// UI preview options only; these are not an approved exhaustive list of weapon types.
-const RPG_MASTERY_WEAPON_PREVIEW=[
- ['sword','Меч'],
- ['bow','Лук'],
- ['staff','Посох']
-];
 function rpgSelectedWeaponName(type){
  return RPG_MASTERY_WEAPON_PREVIEW.find(([key])=>key===type)?.[1]||'Тип не вибрано';
 }
