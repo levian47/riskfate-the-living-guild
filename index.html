@@ -334,6 +334,36 @@
 .hero-direct-orders-heading{margin:14px 0 9px;padding-left:0;padding-right:0}
 @media(max-width:790px){.hero-guidance-grid{grid-template-columns:minmax(0,1fr)}.hero-goal-form{grid-template-columns:1fr 1fr}.hero-goal-form .button{grid-column:1/-1}}
 @media(max-width:390px){.hero-guide-fields{grid-template-columns:minmax(0,1fr)}.hero-policy-row{flex-wrap:wrap}}
+
+.readiness-meter-list{display:grid;gap:9px}
+.readiness-meter{border:1px solid #42474a;border-radius:9px;background:#252a2c;padding:10px 11px;min-width:0}
+.readiness-meter-top{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px;margin-bottom:7px}
+.readiness-meter-top span{font-size:11px;color:var(--muted)}
+.readiness-track{position:relative;height:32px;margin:0 12px}
+.readiness-track-bg{position:absolute;left:0;right:0;top:12px;height:9px;border-radius:99px;background:#141b1d;border:1px solid #474d51}
+.readiness-current-fill{display:block;height:100%;background:#599365;border-radius:99px}
+.readiness-meter--mp .readiness-current-fill{background:#527dbe}
+.readiness-meter--energy .readiness-current-fill{background:#b68a42}
+.readiness-current-marker{position:absolute;top:-5px;width:2px;height:18px;background:#fff1d9;transform:translateX(-50%);box-shadow:0 0 0 1px #111}
+.readiness-range{position:absolute;inset:0 0 auto;width:100%;height:32px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;pointer-events:none;cursor:pointer}
+.readiness-range--returnEnergy{z-index:4}
+.readiness-range--readyEnergy,.readiness-range--readyHP,.readiness-range--readyMP{z-index:3}
+.readiness-range::-webkit-slider-runnable-track{height:9px;background:transparent}
+.readiness-range::-moz-range-track{height:9px;background:transparent}
+.readiness-range::-webkit-slider-thumb{width:24px;height:24px;margin-top:-8px;-webkit-appearance:none;appearance:none;border:3px solid #d1ab6b;background:#443522;border-radius:50%;box-shadow:0 0 0 2px #161a1b;pointer-events:auto;cursor:grab}
+.readiness-range::-moz-range-thumb{width:19px;height:19px;border:3px solid #d1ab6b;background:#443522;border-radius:50%;box-shadow:0 0 0 2px #161a1b;pointer-events:auto;cursor:grab}
+.readiness-range--returnEnergy::-webkit-slider-thumb{border-color:#dc9080;background:#512f2b}
+.readiness-range--returnEnergy::-moz-range-thumb{border-color:#dc9080;background:#512f2b}
+.readiness-range:focus-visible{outline:2px solid #e9be77;outline-offset:3px}
+.readiness-legends{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:8px;font-size:11px;color:var(--muted)}
+.readiness-legend{display:inline-flex;align-items:center;gap:5px}
+.readiness-legend i{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#d1ab6b}
+.readiness-legend--returnEnergy i{background:#dc9080}
+.readiness-legend output{font-size:12px;font-weight:700;color:#f2e1c4}
+.readiness-save-row{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin-top:10px}
+.readiness-save-row small{flex:1;min-width:160px;font-size:10px;line-height:1.4;color:var(--muted)}
+.readiness-save-row .hero-guide-save{margin:0}
+@media(max-width:420px){.readiness-meter{padding:9px}.readiness-save-row .hero-guide-save{width:100%}}
 </style>
 </head>
 <body>
@@ -623,9 +653,56 @@ function heroGoalsRows(){
   </div>
  </div>`).join(''):'<p class="muted">Особистих цілей ще немає.</p>';
 }
+
+const READINESS_RANGE_PLACEHOLDERS={readyHP:50,readyMP:50,readyEnergy:75,returnEnergy:25};
+function readinessPercent(p,key){
+ const raw=String(p[key]??'').trim();
+ if(raw!==''&&/^\d+(?:\.\d+)?$/.test(raw)&&Number(raw)<=100)return Math.round(Number(raw));
+ return null;
+}
+function readinessScale(p,kind,title,current,keys){
+ const sliders=keys.map(([key,label])=>{
+  const configured=readinessPercent(p,key);
+  const pos=configured===null?READINESS_RANGE_PLACEHOLDERS[key]:configured;
+  return `<input type="range" class="readiness-range readiness-range--${key}" id="readinessSlider_${key}" name="${key}" min="${key==='readyEnergy'?1:0}" max="${key==='returnEnergy'?99:100}" step="1" value="${pos}" data-readiness-key="${key}" data-unset="${configured===null?'1':'0'}" aria-label="${safe(label)} у відсотках">`;
+ }).join('');
+ const legend=keys.map(([key,label])=>{
+  const val=readinessPercent(p,key);
+  return `<span class="readiness-legend readiness-legend--${key}"><i aria-hidden="true"></i>${safe(label)}: <output id="readinessValue_${key}" for="readinessSlider_${key}">${val===null?'—':val+'%'}</output></span>`;
+ }).join('');
+ return `<div class="readiness-meter readiness-meter--${kind}">
+  <div class="readiness-meter-top"><strong>${safe(title)}</strong><span>Зараз ${current}% · демо</span></div>
+  <div class="readiness-track" role="group" aria-label="${safe(title)}: пороги">
+   <span class="readiness-track-bg"><span class="readiness-current-fill" style="width:${current}%"></span><span class="readiness-current-marker" style="left:${current}%" title="Зараз ${current}%"></span></span>
+   ${sliders}
+  </div>
+  <div class="readiness-legends">${legend}</div>
+ </div>`;
+}
+function updateReadinessSlider(input){
+ const key=input.dataset.readinessKey;
+ if(!HERO_THRESHOLD_KEYS.includes(key))return;
+ let val=Math.round(Number(input.value));
+ if(key==='readyEnergy'||key==='returnEnergy'){
+  const other=document.getElementById('readinessSlider_'+(key==='readyEnergy'?'returnEnergy':'readyEnergy'));
+  if(other&&other.dataset.unset==='0'){
+   if(key==='readyEnergy')val=Math.max(val,Number(other.value)+1);
+   else val=Math.min(val,Number(other.value)-1);
+  }
+ }
+ val=Math.max(key==='readyEnergy'?1:0,Math.min(key==='returnEnergy'?99:100,val));
+ input.value=String(val);input.dataset.unset='0';
+ const label=document.getElementById('readinessValue_'+key);
+ if(label)label.textContent=val+'%';
+ const status=document.getElementById('readinessDraft');
+ if(status)status.textContent='Є незбережені зміни';
+}
+
 function heroInstructionSettings(){
  const p=state.heroInstructions[state.hero];
- const threshold=(key,label)=>`<label class="field"><span>${label}</span><input name="${key}" type="number" min="0" step="any" inputmode="decimal" value="${safe(p[key])}" placeholder="Не визначено"></label>`;
+ const h=HEROES[state.hero],energy=DEMO_HERO_NEEDS[state.hero]?.[0]??65;
+ const hpPct=Math.max(0,Math.min(100,Math.round(h.hp)));
+ const mpPct=Math.max(0,Math.min(100,Math.round(100*h.mp/Math.max(1,h.mpmax))));
  const policyRow=([key,label])=>`<label class="hero-policy-row"><span>${label}</span><select data-hero-policy="${key}" aria-label="${label}"><option value="" ${p.purchases[key]===''?'selected':''}>Не налаштовано</option><option value="on" ${p.purchases[key]==='on'?'selected':''}>Увімкнено</option><option value="off" ${p.purchases[key]==='off'?'selected':''}>Вимкнено</option></select></label>`;
  return `<div class="hero-guide-intro">
   <strong>Індивідуальні вказівки героя</strong>
@@ -636,16 +713,15 @@ function heroInstructionSettings(){
   <summary>Готовність та повернення <span>HP · MP · Енергія</span></summary>
   <div class="hero-guide-body">
     <form id="heroReadinessForm">
-     <div class="hero-guide-fields">
-      ${threshold('readyHP','Мінімум HP перед експедицією')}
-      ${threshold('readyMP','Мінімум MP перед експедицією')}
-      ${threshold('readyEnergy','Енергія для початку')}
-      ${threshold('returnEnergy','Енергія для повернення')}
+     <div class="readiness-meter-list">
+      ${readinessScale(p,'hp','HP · Здоров’я',hpPct,[['readyHP','Початок експедиції']])}
+      ${readinessScale(p,'mp','MP · Мана',mpPct,[['readyMP','Початок експедиції']])}
+      ${readinessScale(p,'energy','Енергія',energy,[['returnEnergy','Повернення в місто'],['readyEnergy','Початок експедиції']])}
      </div>
-     <p class="help">Обидва пороги енергії задаються разом. Поріг початку має бути строго більшим за поріг повернення. Стандартні значення ще не погоджені.</p>
-     <button class="button secondary hero-guide-save" type="submit">Зберегти пороги</button>
+     <div class="readiness-save-row"><small id="readinessDraft">«—» — поріг не задано. Положення такого повзунка лише орієнтовне.</small><button class="button secondary hero-guide-save" type="submit">Зберегти межі</button></div>
+     <p class="help">Відсоткова шкала 0–100% — демонстрація UI. Поріг енергії для початку має бути строго вищим за поріг повернення.</p>
     </form>
-    <p class="help">HP-втеча під час бою діє окремо. Поріг та її точні параметри тут не задаються. Повернення за енергією не обриває вже розпочатий бій.</p>
+    <p class="help">Для HP і MP погоджено лише поріг готовності. HP-втеча працює окремо; повернення за енергією не перериває бій.</p>
   </div>
  </details>
  <details class="hero-guide-section">
@@ -822,19 +898,22 @@ if(el.dataset.recipe){addRecipe(el.dataset.recipe);return}if(el.dataset.complete
 document.addEventListener('submit',ev=>{
  if(ev.target.id==='heroReadinessForm'){
   ev.preventDefault();
-  const data=new FormData(ev.target),values={};
+  const values={};
   for(const key of HERO_THRESHOLD_KEYS){
-   const v=String(data.get(key)??'').trim();
-   if(v!==''&&(!/^\d+(?:\.\d+)?$/.test(v)||!Number.isFinite(Number(v)))){
-    toast('Вкажи невід’ємне число або залиш поле порожнім');return;
-   }
-   values[key]=v;
+   const slider=document.getElementById('readinessSlider_'+key);
+   if(!slider){toast('Шкалу не знайдено');return}
+   if(slider.dataset.unset==='1'){values[key]='';continue}
+   const n=Number(slider.value);
+   if(!Number.isInteger(n)||n<0||n>100){toast('Поріг має бути від 0 до 100%');return}
+   values[key]=String(n);
   }
-  const a=values.readyEnergy,b=values.returnEnergy;
-  if((a==='')!==(b==='')){toast('Заповни обидва пороги енергії або залиш обидва порожніми');return}
-  if(a!==''&&Number(a)<=Number(b)){toast('Енергія для початку повинна бути вищою за енергію повернення');return}
+  if((values.readyEnergy==='')!==(values.returnEnergy==='')){toast('Встанови обидві межі енергії');return}
+  if(values.readyEnergy!==''&&Number(values.readyEnergy)<=Number(values.returnEnergy)){toast('Початок має бути вище повернення');return}
   Object.assign(state.heroInstructions[state.hero],values);
-  save();toast('Індивідуальні пороги збережено локально');return;
+  save();
+  const status=document.getElementById('readinessDraft');
+  if(status)status.textContent='Межі збережено для цього героя · демо';
+  toast('Межі збережено в браузері');return;
  }
  if(ev.target.id==='heroGoalForm'){
   ev.preventDefault();
@@ -863,7 +942,7 @@ if(ev.target.dataset.heroPolicy){
  }
 }
 if(ev.target.id==='marketFilter'){state.showMarket=ev.target.value;render()}if(ev.target.dataset.policy){state.policies[ev.target.dataset.policy]=ev.target.checked;save();toast('Налаштування збережено лише в цьому браузері')}});
-document.addEventListener('input',ev=>{if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
+document.addEventListener('input',ev=>{if(ev.target.dataset?.readinessKey)updateReadinessSlider(ev.target);if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
 document.getElementById('menu').innerHTML=icon('menu');document.getElementById('menu').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('shade').classList.toggle('show')});document.getElementById('shade').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')});document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){document.getElementById('modal-root').innerHTML='';document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')}});
 render();
 </script>
