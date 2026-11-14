@@ -371,6 +371,30 @@
 .readiness-range[class*="readiness-range--return"]::-moz-range-thumb{border-color:#dc9080;background:#512f2b}
 .readiness-legend[class*="readiness-legend--return"] i{background:#dc9080}
 .readiness-range:focus-visible{z-index:6}
+
+/* Isolated recovery sandbox: no item deductions and no game-state mutation. */
+.recovery-sandbox{border:1px solid #514937;background:#222527;border-radius:9px;overflow:hidden}
+.recovery-sandbox>summary{list-style:none;cursor:pointer;min-height:44px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px 12px;color:var(--gold2);font-size:12px;font-weight:750}
+.recovery-sandbox>summary::-webkit-details-marker{display:none}
+.recovery-sandbox>summary span{color:var(--muted);font-size:10px;font-weight:500}
+.recovery-sandbox[open]>summary{border-bottom:1px solid #47433a}
+.recovery-sandbox>summary:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.recovery-sandbox-body{padding:10px 12px;display:grid;gap:10px;min-width:0}
+.recovery-sandbox-mode{display:grid;gap:5px;font-size:11px;color:var(--muted)}
+.recovery-sandbox-mode select{width:100%;min-height:40px;padding:8px;background:#292e30;color:var(--text);border:1px solid #4c5355;border-radius:7px}
+.recovery-sandbox-resources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.recovery-sandbox-resource{display:grid;gap:6px;min-width:0;font-size:11px}
+.recovery-sandbox-resource>span{display:flex;justify-content:space-between;gap:5px}
+.recovery-sandbox-resource output{font-weight:750;color:var(--gold2)}
+.recovery-sandbox-resource input[type=range]{width:100%;height:30px;margin:0;accent-color:var(--gold)}
+.recovery-sandbox-flags{display:flex;gap:7px 13px;flex-wrap:wrap;padding:7px 0}
+.recovery-sandbox-flag{display:flex;align-items:center;gap:6px;font-size:11px;min-height:34px;color:#ded8cf}
+.recovery-sandbox-flag input{height:18px;width:18px;margin:0;accent-color:var(--gold)}
+.recovery-sandbox-result{border:1px solid #705c3c;border-radius:8px;background:#2a2925;padding:11px 12px;display:grid;gap:6px}
+.recovery-sandbox-result>strong{font-size:12px;color:var(--gold2)}
+.recovery-sandbox-result p{margin:0;font-size:12px}
+.recovery-sandbox-result small{color:var(--muted);font-size:11px;line-height:1.4}
+@media(max-width:420px){.recovery-sandbox-resources{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -711,6 +735,91 @@ function updateReadinessSlider(input){
  if(status)status.textContent='Є незбережені зміни';
 }
 
+
+/* Standalone, non-persistent recovery decision sandbox. Priority order is experimental, not an approved game rule. */
+function recoverySandboxThresholds(p){
+ return Object.fromEntries(HERO_METRIC_THRESHOLDS.map(([metric])=>[metric,{
+  low:readinessPercent(p,'return'+metric)??25,
+  high:readinessPercent(p,'ready'+metric)??75
+ }]));
+}
+function recoverySandboxDecision(values,thresholds,mode,flags){
+ const names={HP:'HP',MP:'MP',Energy:'Енергія',Food:'Ситість'};
+ const metrics=Object.keys(names);
+ if(!metrics.every(k=>Number.isFinite(values[k])&&values[k]>=0&&values[k]<=100&&Number.isFinite(thresholds[k]?.low)&&Number.isFinite(thresholds[k]?.high)&&thresholds[k].low<thresholds[k].high))
+  return {status:'Потрібно уточнити межі',action:'Перевір пари повзунків: поріг полювання має бути вищим за відновлення.',why:'Усі значення тестового сценарію мають бути в межах 0–100%.'};
+ const triggered=metrics.filter(k=>values[k]<=thresholds[k].low);
+ const needed=metrics.filter(k=>values[k]<thresholds[k].high);
+ const why=triggered.length?'Нижню межу досягнуто: '+triggered.map(k=>names[k]).join(', ')+'.':'Нижні межі не досягнуті.';
+ const ready=needed.length===0;
+ if(mode==='combat'){
+  if(values.HP<thresholds.HP.low)return {status:'Бій · спроба втечі',action:'Спробувати втекти через HP нижче порога. Успіх не гарантований.',why:'Інші ресурси не можуть самостійно запускати втечу. Результат бою не симулюється.'};
+  if(triggered.length)return {status:'Бій · відновлення після сутички',action:'Завершити поточний бій, потім перейти до стану «Відновлення».',why};
+  return {status:'Бій триває',action:'Продовжувати поточну сутичку за бойовими правилами.',why:'Умови спроби втечі за HP немає.'};
+ }
+ if(ready)return {status:'Готовий до полювання',action:'Усі чотири верхні пороги досягнуті.',why:'Можна розпочати або відновити полювання, якщо виконані інші умови.'};
+ if(mode==='hunt'&&triggered.length===0)return {status:'Полювання триває',action:'Продовжувати полювання до досягнення нижньої межі.',why:'Верхні межі потрібні для виходу зі стану «Відновлення», а не для зупинки активного полювання.'};
+ const pending='Не досягнуті верхні межі: '+needed.map(k=>names[k]).join(', ')+'.';
+ if(!flags.safe)return {status:'Відновлення · потрібне безпечне місце',action:'Оцінити безпеку й можливість перейти в безпечне місце або місто.',why:pending+' На небезпечному місці не починати нерухому медитацію чи відпочинок без перевірки.'};
+ if(needed.includes('Food')){
+  if(flags.food)return {status:'Відновлення · харчування',action:'Спожити власну їжу (тестовий пріоритет).',why:pending+' Медитація не поповнює ситість.'};
+  if(flags.gold)return {status:'Відновлення · потрібна їжа',action:'Розглянути повернення до міста для платної закупівлі їжі.',why:pending+' Їжі в інвентарі немає.'};
+  return {status:'Відновлення · дефіцит забезпечення',action:'Їжі та грошей немає. Потрібен інший погоджений спосіб забезпечення.',why:pending+' Зілля, медитація і регенерація не створюють їжу.'};
+ }
+ if(needed.some(k=>['HP','MP','Energy'].includes(k))&&flags.meditation)
+  return {status:'Відновлення · медитація',action:'Застосувати вивчену медитацію на місці (HP, MP, Енергія).',why:pending+' Медитація не поповнює ситість і потребує нерухомості.'};
+ if(needed.some(k=>['HP','MP'].includes(k))&&flags.potion)
+  return {status:'Відновлення · власні припаси',action:'Розглянути використання наявного зілля для HP/MP.',why:pending+' Тип і числовий ефект зілля ще не визначені.'};
+ if(needed.includes('Energy'))return {status:'Відновлення · відпочинок',action:'Відпочивати для поповнення енергії.',why:pending+' Витрат припасів не виконується.'};
+ return {status:'Відновлення · природна регенерація',action:'Залишитися нерухомим для природної регенерації HP/MP.',why:pending+' Навичка медитації та потрібні припаси недоступні.'};
+}
+function recoverySandboxResources(){
+ const hero=HEROES[state.hero],other=DEMO_HERO_NEEDS[state.hero]||[65,75];
+ return {HP:Math.round(hero.hp),MP:Math.round(100*hero.mp/Math.max(1,hero.mpmax)),Energy:other[0],Food:other[1]};
+}
+function recoverySandboxRender(){
+ const resources=recoverySandboxResources(),p=state.heroInstructions[state.hero];
+ const limits=recoverySandboxThresholds(p);
+ const row=HERO_METRIC_THRESHOLDS.map(([key,name])=>
+  '<label class="recovery-sandbox-resource"><span>'+safe(name)+': <output id="recoveryNow_'+key+'">'+resources[key]+'%</output></span>'+
+  '<input type="range" min="0" max="100" step="1" value="'+resources[key]+'" data-recovery-resource="'+key+'" aria-label="Тестовий показник '+safe(name)+' у відсотках"></label>').join('');
+ const settings=[
+  ['meditation','Медитація вивчена',true],
+  ['potion','Є зілля HP/MP',true],
+  ['food','Є їжа',true],
+  ['gold','Є власне золото',true],
+  ['safe','Місце безпечне',true]
+ ].map(([id,label,checked])=>
+  '<label class="recovery-sandbox-flag"><input type="checkbox" data-recovery-flag="'+id+'" '+(checked?'checked':'')+'><span>'+label+'</span></label>').join('');
+ const result=recoverySandboxDecision(resources,limits,'hunt',{meditation:true,potion:true,food:true,gold:true,safe:true});
+ return '<details class="recovery-sandbox"><summary>Перевірити відновлення <span>Інтерактивний тест</span></summary>'+
+  '<div class="recovery-sandbox-body"><p class="help"><strong>Тестова модель, не реальний герой.</strong> Змінюй показники, умови та режим — рекомендація оновлюється одразу. Жодні предмети, гроші й HP героя не витрачаються.</p>'+
+  '<label class="recovery-sandbox-mode"><span>Поточний режим героя</span><select id="recoverySandboxMode"><option value="hunt">Полювання</option><option value="combat">Бій</option><option value="recover">Відновлення</option></select></label>'+
+  '<div class="recovery-sandbox-resources">'+row+'</div>'+
+  '<div class="recovery-sandbox-flags">'+settings+'</div>'+
+  '<div class="recovery-sandbox-result" id="recoverySandboxResult" aria-live="polite">'+recoverySandboxResultHtml(result)+'</div>'+
+  '<p class="help">Для тесту незадані пороги умовно 25% / 75%. Можна змінити їхні повзунки вище. Демонстраційний вибір дії: безпека → харчування → медитація → зілля → відпочинок/регенерація. <strong>Цей порядок ще не затверджено.</strong> Ефекти, таймери, бої та закупівлі тут не симулюються.</p></div></details>';
+}
+function recoverySandboxResultHtml(result){
+ return '<strong>'+safe(result.status)+'</strong><p>'+safe(result.action)+'</p><small>'+safe(result.why)+'</small>';
+}
+function refreshRecoverySandbox(){
+ const target=document.getElementById('recoverySandboxResult');
+ if(!target)return;
+ const values={},limits={};
+ for(const [metric] of HERO_METRIC_THRESHOLDS){
+  const input=document.querySelector('[data-recovery-resource="'+metric+'"]');
+  values[metric]=Number(input?.value);
+  const output=document.getElementById('recoveryNow_'+metric);
+  if(output)output.textContent=values[metric]+'%';
+  const low=document.getElementById('readinessSlider_return'+metric);
+  const high=document.getElementById('readinessSlider_ready'+metric);
+  limits[metric]={low:low?Number(low.value):25,high:high?Number(high.value):75};
+ }
+ const flags=Object.fromEntries(['meditation','potion','food','gold','safe'].map(k=>[k,!!document.querySelector('[data-recovery-flag="'+k+'"]')?.checked]));
+ target.innerHTML=recoverySandboxResultHtml(recoverySandboxDecision(values,limits,document.getElementById('recoverySandboxMode')?.value||'hunt',flags));
+}
+
 function heroInstructionSettings(){
  const p=state.heroInstructions[state.hero];
  const h=HEROES[state.hero];
@@ -736,7 +845,8 @@ function heroInstructionSettings(){
      <div class="readiness-save-row"><small id="readinessDraft">«—» — поріг не задано. Положення такого повзунка лише орієнтовне.</small><button class="button secondary hero-guide-save" type="submit">Зберегти межі</button></div>
      <p class="help">Червоний маркер — почати відновлення, не обов'язково в місті. Золотий — можна знову полювати. Для кожного показника золотий поріг має бути вищим. Поки межі не збережені, повзунки показують лише демонстраційні позиції.</p>
     </form>
-    <p class="help"><strong>Під час бою:</strong> лише HP нижче межі відновлення дозволяє спробувати втекти (не гарантовано). Якщо бракує MP, Енергії чи Ситості — завершити бій, потім відновлюватися. <strong>Стан «Відновлення»:</strong> герой за алгоритмом пріоритетів обирає допустиму дію: власні припаси, медитацію для HP/MP/Енергії (якщо вивчена), природну регенерацію HP/MP, відпочинок чи їжу; до міста — якщо це необхідно для забезпечення або послуг. Медитація не відновлює Ситість. Без золота не видавати безкоштовних припасів. Нове полювання — після верхніх меж усіх чотирьох показників. Точні пріоритети ще не погоджені; симуляція не підключена.</p>
+    <p class="help"><strong>Під час бою:</strong> лише HP нижче межі відновлення дозволяє спробувати втекти (не гарантовано). Низькі MP, Енергія або Ситість не переривають бій. <strong>Відновлення:</strong> за наявності умов на місці, інакше можливе повернення до міста. Медитація відновлює HP/MP/Енергію, але не ситість. Точні пріоритети й ефекти ще не затверджені.</p>
+    ${recoverySandboxRender()}
   </div>
  </details>
  <details class="hero-guide-section">
@@ -945,7 +1055,7 @@ document.addEventListener('submit',ev=>{
  }
  if(ev.target.id==='commandForm'){ev.preventDefault();let f=new FormData(ev.target),cmd=f.get('cmd');if(cmd==='Купити предмет'){let item=String(f.get('item')||'').trim(),price=Number(f.get('maxprice'));if(!item||!(price>0)){toast('Вкажіть назву товару й максимальну ціну');return}cmd=`Купити «${item}» (до ${price} монет)`}state.commands[state.hero].push(cmd);toast('Наказ додано до локальної черги');render()}if(ev.target.id==='marketForm'){ev.preventDefault();let f=new FormData(ev.target),qty=Number(f.get('qty')),price=Number(f.get('price'));if(!Number.isSafeInteger(qty)||qty<1||!Number.isSafeInteger(price)||price<1){toast('Перевір кількість і ціну');return}state.orders.push({type:String(f.get('type')),item:String(f.get('item')),qty,price});toast('Демонстраційну заявку створено без реальної торгівлі');render()}});
 document.addEventListener('toggle',ev=>{if(ev.target.matches('details.hero-monitor')){state.heroesExpanded=ev.target.open;save()}},true);
-document.addEventListener('change',ev=>{if(ev.target.id==='commandSelect'){commandToggle()}if(ev.target.id==='masteryWeaponType'){const chosen=ev.target.value;if(chosen===''||RPG_MASTERY_WEAPON_PREVIEW.some(([key])=>key===chosen)){state.masteryPreviewTypes[state.hero]=chosen;save();const label=document.getElementById('masterySelectionLabel');if(label)label.textContent='Перегляд: '+rpgSelectedWeaponName(chosen)}}if(ev.target.id==='heroArchetypeSelect'){
+document.addEventListener('change',ev=>{if(ev.target.id==='recoverySandboxMode'||ev.target.dataset?.recoveryFlag)refreshRecoverySandbox();if(ev.target.id==='commandSelect'){commandToggle()}if(ev.target.id==='masteryWeaponType'){const chosen=ev.target.value;if(chosen===''||RPG_MASTERY_WEAPON_PREVIEW.some(([key])=>key===chosen)){state.masteryPreviewTypes[state.hero]=chosen;save();const label=document.getElementById('masterySelectionLabel');if(label)label.textContent='Перегляд: '+rpgSelectedWeaponName(chosen)}}if(ev.target.id==='heroArchetypeSelect'){
  const archetype=ev.target.value;
  if(archetype===''||HERO_ARCHETYPE_EXAMPLES.some(([id])=>id===archetype)){
   state.heroInstructions[state.hero].archetype=archetype;save();
@@ -960,7 +1070,7 @@ if(ev.target.dataset.heroPolicy){
  }
 }
 if(ev.target.id==='marketFilter'){state.showMarket=ev.target.value;render()}if(ev.target.dataset.policy){state.policies[ev.target.dataset.policy]=ev.target.checked;save();toast('Налаштування збережено лише в цьому браузері')}});
-document.addEventListener('input',ev=>{if(ev.target.dataset?.readinessKey)updateReadinessSlider(ev.target);if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
+document.addEventListener('input',ev=>{if(ev.target.dataset?.readinessKey){updateReadinessSlider(ev.target);refreshRecoverySandbox()}if(ev.target.dataset?.recoveryResource)refreshRecoverySandbox();if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
 document.getElementById('menu').innerHTML=icon('menu');document.getElementById('menu').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('shade').classList.toggle('show')});document.getElementById('shade').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')});document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){document.getElementById('modal-root').innerHTML='';document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')}});
 render();
 </script>
