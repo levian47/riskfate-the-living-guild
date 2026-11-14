@@ -287,6 +287,9 @@
 .rpg-stat-group-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:3px 8px;padding:3px 2px 7px;margin-bottom:3px;border-bottom:1px solid #605038}
 .rpg-stat-group-head strong{color:var(--gold2);font-size:12px;font-weight:750}
 .rpg-stat-group-head span{color:var(--muted);font-size:10px}
+.rpg-weapon-picker{display:grid;gap:5px;margin:2px 0 7px;font-size:11px;color:var(--muted)}
+.rpg-weapon-picker select{display:block;width:100%;min-height:42px;padding:7px 10px;border:1px solid #62533d;border-radius:8px;background:#252729;color:var(--text);font-size:12px}
+.rpg-mastery-selection{color:var(--gold2)!important;font-size:11px!important;margin:0 0 7px!important}
 </style>
 </head>
 <body>
@@ -340,8 +343,8 @@ const HEROES=[{name:'Торен',cls:'Воїн',level:8,state:'Полює · Т�
 const DEMO_HERO_NEEDS=[[64,81],[23,57],[88,69]];
 const INITIAL_INVENTORY=[['Залізна руда','Сировина',86,'шт.'],['Деревина','Сировина',48,'шт.'],['Лікарські трави','Сировина',34,'шт.'],['Шкіра вовка','Трофеї',21,'шт.'],['Малий еліксир здоров’я','Витратні',12,'шт.'],['Залізний меч','Спорядження',3,'шт.'],['Шкіряний обладунок','Спорядження',2,'шт.']];
 const RECIPES=[{id:'sword',name:'Залізний меч',cost:'4 залізної руди · 2 деревини',use:{'Залізна руда':4,'Деревина':2},time:12,icon:'sword'},{id:'potion',name:'Малий еліксир здоров’я',cost:'3 лікарські трави',use:{'Лікарські трави':3},time:7,icon:'flask'},{id:'armor',name:'Шкіряний обладунок',cost:'5 шкур вовка',use:{'Шкіра вовка':5},time:18,icon:'shield'}];
-const initial=()=>({page:'city',hero:0,heroTab:'overview',inventory:INITIAL_INVENTORY.map(([name,category,qty,unit])=>({name,category,qty,unit})),production:[{name:'Заточування мечів',time:'8 хв',status:'У роботі'}],orders:[],commands:[[],[],[]],activity:[{name:'З’явилося нове замовлення на ринку',time:'10 хв тому'},{name:'У таверні доступні нові найманці',time:'27 хв тому'},{name:'Зміна ціни на залізну руду',time:'1 год тому'},{name:'Прибула караванна група',time:'2 год тому'}],policies:{autosell:true,autobuy:false},guildGold:1840,filter:'',showMarket:'all',addedBuildings:[],zone:'zone-forest',heroesExpanded:true});
-let state=initial();try{const raw=JSON.parse(localStorage.getItem('riskfate_ui_demo_v01')||'null');if(raw&&typeof raw==='object'){state={...state,...raw,page:NAV.some(n=>n[0]===raw.page)?raw.page:(['hunting','zone'].includes(raw.page)&&HUNTING_ZONES.some(z=>z[0]===raw.zone)?raw.zone:'city')};state.commands=Array.isArray(raw.commands)&&raw.commands.length===3?raw.commands:[[],[],[]];state.addedBuildings=Array.isArray(raw.addedBuildings)?[...new Set(raw.addedBuildings.filter(id=>BUILDING_CATALOG.some(x=>x[3]===id)))]:[];state.zone=['zone-forest','zone-ridge','zone-dark'].includes(raw.zone)?raw.zone:'zone-forest';state.heroesExpanded=raw.heroesExpanded!==false;}}catch(_e){}
+const initial=()=>({page:'city',hero:0,heroTab:'overview',masteryPreviewTypes:Array(HEROES.length).fill(''),inventory:INITIAL_INVENTORY.map(([name,category,qty,unit])=>({name,category,qty,unit})),production:[{name:'Заточування мечів',time:'8 хв',status:'У роботі'}],orders:[],commands:[[],[],[]],activity:[{name:'З’явилося нове замовлення на ринку',time:'10 хв тому'},{name:'У таверні доступні нові найманці',time:'27 хв тому'},{name:'Зміна ціни на залізну руду',time:'1 год тому'},{name:'Прибула караванна група',time:'2 год тому'}],policies:{autosell:true,autobuy:false},guildGold:1840,filter:'',showMarket:'all',addedBuildings:[],zone:'zone-forest',heroesExpanded:true});
+let state=initial();try{const raw=JSON.parse(localStorage.getItem('riskfate_ui_demo_v01')||'null');if(raw&&typeof raw==='object'){state={...state,...raw,page:NAV.some(n=>n[0]===raw.page)?raw.page:(['hunting','zone'].includes(raw.page)&&HUNTING_ZONES.some(z=>z[0]===raw.zone)?raw.zone:'city')};state.commands=Array.isArray(raw.commands)&&raw.commands.length===3?raw.commands:[[],[],[]];state.addedBuildings=Array.isArray(raw.addedBuildings)?[...new Set(raw.addedBuildings.filter(id=>BUILDING_CATALOG.some(x=>x[3]===id)))]:[];state.zone=['zone-forest','zone-ridge','zone-dark'].includes(raw.zone)?raw.zone:'zone-forest';state.heroesExpanded=raw.heroesExpanded!==false;state.masteryPreviewTypes=Array.from({length:HEROES.length},(_,i)=>RPG_MASTERY_WEAPON_PREVIEW.some(([key])=>key===raw.masteryPreviewTypes?.[i])?raw.masteryPreviewTypes[i]:'');}}catch(_e){}
 if(!['overview','orders'].includes(state.heroTab))state.heroTab='overview';
 if(!Number.isInteger(state.hero)||state.hero<0||state.hero>=HEROES.length)state.hero=0;
 function save(){try{localStorage.setItem('riskfate_ui_demo_v01',JSON.stringify(state))}catch(_e){}}
@@ -429,7 +432,7 @@ const RPG_SLOT_PREVIEW={
  equip:[
   ['Зброя','sword','Залізний меч'],['Друга рука','shield',null],
   ['Голова','shield',null],['Броня','shield','Шкіряний обладунок'],
-  ['Руки','shield',null],['Взуття','shield',null],
+  ['Штани','shield',null],['Руки','shield',null],['Взуття','shield',null],
   ['Аксесуар I','gem',null],['Аксесуар II','gem',null]
  ],
  skills:[
@@ -462,6 +465,15 @@ function rpgSlotPanel(title,category,description){
  </section>`;
 }
 
+// UI preview options only; these are not an approved exhaustive list of weapon types.
+const RPG_MASTERY_WEAPON_PREVIEW=[
+ ['sword','Меч'],
+ ['bow','Лук'],
+ ['staff','Посох']
+];
+function rpgSelectedWeaponName(type){
+ return RPG_MASTERY_WEAPON_PREVIEW.find(([key])=>key===type)?.[1]||'Тип не вибрано';
+}
 const RPG_MASTERY_DIRECTIONS=[
  'Точність автоатак',
  'Точність навичок',
@@ -471,15 +483,22 @@ const RPG_MASTERY_DIRECTIONS=[
  'Сила магічного критичного удару'
 ];
 function rpgMastery(){
+ const selected=state.masteryPreviewTypes[state.hero]||'';
  return `<details class="rpg-section rpg-mastery">
   <summary class="rpg-mastery-toggle">
    <span class="rpg-mastery-title">${icon('sword',18)}<strong>Майстерність зброї</strong></span>
    <span class="rpg-mastery-meta">6 напрямів ${icon('down',16)}</span>
   </summary>
   <div class="rpg-mastery-body">
-   <p>Кожен тип зброї має окрему майстерність. Відкритий герой поки не має підключених даних майстерності.</p>
+   <label class="rpg-weapon-picker" for="masteryWeaponType"><span>Тип зброї для перегляду</span>
+     <select id="masteryWeaponType" name="masteryWeaponType">
+       <option value="" ${!selected?'selected':''}>Оберіть тип</option>
+       ${RPG_MASTERY_WEAPON_PREVIEW.map(([key,label])=>`<option value="${key}" ${selected===key?'selected':''}>${safe(label)}</option>`).join('')}
+     </select>
+   </label>
+   <p class="rpg-mastery-selection" id="masterySelectionLabel" aria-live="polite">Перегляд: ${safe(rpgSelectedWeaponName(selected))}</p>
    <div class="rpg-mastery-rows">${RPG_MASTERY_DIRECTIONS.map(name=>`<div class="rpg-mastery-row"><span>${safe(name)}</span><strong title="Значення не реалізовано">—</strong></div>`).join('')}</div>
-   <p class="rpg-mastery-footnote">Одночасно розвивається один вибраний напрямок для зброї, якою користується герой. Прогрес нараховується за перемоги, а не витратою EXP.</p>
+   <p class="rpg-mastery-footnote">Типи зброї в списку — приклади для UI, не затверджений повний перелік. Вибір змінює лише перегляд, не екіпірування чи розвиток. Дані майстерності ще не підключені.</p>
   </div>
  </details>`;
 }
@@ -628,7 +647,7 @@ if(el.dataset.rpgslot){
 if(el.dataset.recipe){addRecipe(el.dataset.recipe);return}if(el.dataset.complete!==undefined){completeRecipe(Number(el.dataset.complete));return}if(el.dataset.cancelorder!==undefined){state.orders.splice(Number(el.dataset.cancelorder),1);toast('Демозаявку скасовано');render();return}if(el.dataset.removecommand!==undefined){state.commands[state.hero].splice(Number(el.dataset.removecommand),1);render();return}if(el.dataset.modal){modal({inventory:'Інвентар героя',equip:'Екіпірування',skills:'Навички'}[el.dataset.modal], 'Цей розділ буде деталізовано після погодження характеристик героїв та слотів.');return}if(el.dataset.closemodal){document.getElementById('modal-root').innerHTML='';return}if(el.dataset.demoquest){modal(el.dataset.demoquest,'Завдання наведене для демонстрації інтерфейсу. Систему прийняття та виконання контрактів ще не підключено.');return}});
 document.addEventListener('submit',ev=>{if(ev.target.id==='commandForm'){ev.preventDefault();let f=new FormData(ev.target),cmd=f.get('cmd');if(cmd==='Купити предмет'){let item=String(f.get('item')||'').trim(),price=Number(f.get('maxprice'));if(!item||!(price>0)){toast('Вкажіть назву товару й максимальну ціну');return}cmd=`Купити «${item}» (до ${price} монет)`}state.commands[state.hero].push(cmd);toast('Наказ додано до локальної черги');render()}if(ev.target.id==='marketForm'){ev.preventDefault();let f=new FormData(ev.target),qty=Number(f.get('qty')),price=Number(f.get('price'));if(!Number.isSafeInteger(qty)||qty<1||!Number.isSafeInteger(price)||price<1){toast('Перевір кількість і ціну');return}state.orders.push({type:String(f.get('type')),item:String(f.get('item')),qty,price});toast('Демонстраційну заявку створено без реальної торгівлі');render()}});
 document.addEventListener('toggle',ev=>{if(ev.target.matches('details.hero-monitor')){state.heroesExpanded=ev.target.open;save()}},true);
-document.addEventListener('change',ev=>{if(ev.target.id==='commandSelect'){commandToggle()}if(ev.target.id==='marketFilter'){state.showMarket=ev.target.value;render()}if(ev.target.dataset.policy){state.policies[ev.target.dataset.policy]=ev.target.checked;save();toast('Налаштування збережено лише в цьому браузері')}});
+document.addEventListener('change',ev=>{if(ev.target.id==='commandSelect'){commandToggle()}if(ev.target.id==='masteryWeaponType'){const chosen=ev.target.value;if(chosen===''||RPG_MASTERY_WEAPON_PREVIEW.some(([key])=>key===chosen)){state.masteryPreviewTypes[state.hero]=chosen;save();const label=document.getElementById('masterySelectionLabel');if(label)label.textContent='Перегляд: '+rpgSelectedWeaponName(chosen)}}if(ev.target.id==='marketFilter'){state.showMarket=ev.target.value;render()}if(ev.target.dataset.policy){state.policies[ev.target.dataset.policy]=ev.target.checked;save();toast('Налаштування збережено лише в цьому браузері')}});
 document.addEventListener('input',ev=>{if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
 document.getElementById('menu').innerHTML=icon('menu');document.getElementById('menu').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('shade').classList.toggle('show')});document.getElementById('shade').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')});document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){document.getElementById('modal-root').innerHTML='';document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')}});
 render();
