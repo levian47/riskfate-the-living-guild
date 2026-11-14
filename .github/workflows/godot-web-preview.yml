@@ -102,6 +102,36 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Browser smoke test (Chromium screenshots)
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/godot-browser"
+          python3 -m http.server 8765 --bind 127.0.0.1 \
+            --directory source/godot/build/web > "$RUNNER_TEMP/browser-server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          sleep 2
+          for viewport in "1280,800" "393,852"; do
+            google-chrome --headless --no-sandbox --disable-dev-shm-usage \
+              --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+              --virtual-time-budget=12000 --window-size="$viewport" \
+              --screenshot="$RUNNER_TEMP/godot-browser/$viewport.png" \
+              "http://127.0.0.1:8765/index.html" \
+              > "$RUNNER_TEMP/godot-browser/$viewport.log" 2>&1
+            test -s "$RUNNER_TEMP/godot-browser/$viewport.png"
+          done
+
+      - name: Upload browser smoke screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: godot-pr16-browser-screenshots
+          path: ${{ runner.temp }}/godot-browser/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Publish isolated static Web preview (not main)
         shell: bash
         run: |
@@ -115,3 +145,17 @@ jobs:
             git -C preview commit -m "build(preview): export Godot guild pilot from PR branch"
             git -C preview push origin HEAD:preview/godot-pr16-web
           fi
+
+      - name: Check public Web preview URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://raw.githack.com/levian47/riskfate-the-living-guild/preview/godot-pr16-web/godot-preview"
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 3 \
+            "$BASE/index.html" -o "$RUNNER_TEMP/external-preview.html"
+          test -s "$RUNNER_TEMP/external-preview.html"
+          curl --fail --silent --show-error --location --head --retry 5 --retry-delay 3 \
+            "$BASE/index.wasm" -o "$RUNNER_TEMP/external-wasm.headers"
+          curl --fail --silent --show-error --location --head --retry 5 --retry-delay 3 \
+            "$BASE/index.pck" -o "$RUNNER_TEMP/external-pck.headers"
+          echo "Verified public Web preview: $BASE/index.html"
