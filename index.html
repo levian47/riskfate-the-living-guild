@@ -280,6 +280,13 @@
 .rpg-mastery-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #373b3d;font-size:11px;line-height:1.3}
 .rpg-mastery-row strong{color:#b9a17a;font-size:13px}
 .rpg-mastery-body p.rpg-mastery-footnote{margin:9px 0 0}
+
+/* Hero attributes: approved primary / additional grouping without extra panels. */
+.rpg-stat-groups{display:grid;gap:12px}
+.rpg-stat-group{min-width:0}
+.rpg-stat-group-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:3px 8px;padding:3px 2px 7px;margin-bottom:3px;border-bottom:1px solid #605038}
+.rpg-stat-group-head strong{color:var(--gold2);font-size:12px;font-weight:750}
+.rpg-stat-group-head span{color:var(--muted);font-size:10px}
 </style>
 </head>
 <body>
@@ -411,9 +418,12 @@ function renderGuild(){return header('Керування / моя гільдія
 
 /* Reference-only layout data, not hero-owned state or approved balancing. */
 const RPG_ATTRIBUTE_REFERENCE=[
- ['hp','HP'],['mp','MP'],['hpregen','Регенерація HP'],['mpregen','Регенерація MP'],
- ['strength','Сила'],['agility','Спритність'],['intellect','Інтелект'],['armor','Фізичний захист'],
- ['resistance','Магічний захист'],['carry','Вантажопідйомність'],['speed','Швидкість'],['luck','Удача']
+ ['hp','HP','primary'],['mp','MP','primary'],['strength','Сила','primary'],
+ ['agility','Спритність','primary'],['intellect','Інтелект','primary'],
+ ['armor','Фізичний захист','primary'],['resistance','Магічний захист','primary'],
+ ['hpregen','Регенерація HP','additional'],['mpregen','Регенерація MP','additional'],
+ ['carry','Вантажопідйомність','additional'],['speed','Швидкість','additional'],
+ ['luck','Удача','additional']
 ];
 const RPG_SLOT_PREVIEW={
  equip:[
@@ -475,12 +485,16 @@ function rpgMastery(){
 }
 
 function rpgAttributes(){
+ const groups=[['primary','Основні','7 · впливають на рівень і ранг'],['additional','Додаткові','5 · не впливають на рівень']];
  return `<section class="rpg-section rpg-section--attributes">
   <div class="rpg-section-head"><h2>Характеристики</h2><span>12 · розвиток за EXP</span></div>
-  <p class="rpg-section-help">Кожну характеристику можна підвищувати окремо за EXP. Значення, ціни та поділ на основні/додаткові ще не реалізовані.</p>
-  <div class="rpg-attribute-grid">${RPG_ATTRIBUTE_REFERENCE.map(([id,label])=>`<button type="button" class="rpg-attribute" data-rpgstat="${id}" title="${safe(label)}: підвищення за EXP (ще не реалізовано)">
-    <span>${safe(label)}</span><span class="rpg-attribute-value"><strong aria-label="значення не визначено">—</strong><small aria-hidden="true">+ EXP</small></span>
-   </button>`).join('')}</div>
+  <p class="rpg-section-help">Кожну характеристику можна підвищувати окремо за EXP. Значення, ціни й формули ще не реалізовані.</p>
+  <div class="rpg-stat-groups">${groups.map(([kind,title,description])=>`<div class="rpg-stat-group">
+    <div class="rpg-stat-group-head"><strong>${title}</strong><span>${description}</span></div>
+    <div class="rpg-attribute-grid">${RPG_ATTRIBUTE_REFERENCE.filter(a=>a[2]===kind).map(([id,label])=>`<button type="button" class="rpg-attribute" data-rpgstat="${id}" title="${safe(label)}: підвищення за EXP (ще не реалізовано)">
+      <span>${safe(label)}</span><span class="rpg-attribute-value"><strong aria-label="значення не визначено">—</strong><small aria-hidden="true">+ EXP</small></span>
+     </button>`).join('')}</div>
+   </div>`).join('')}</div>
  </section>`;
 }
 function rpgInventoryPanel(){
@@ -599,7 +613,7 @@ function completeRecipe(i){let p=state.production[i];if(!p||p.status!=='Запл
 function commandToggle(){let flag=document.getElementById('commandSelect')?.value==='Купити предмет';let a=document.getElementById('purchaseField'),b=document.getElementById('priceField');if(a)a.hidden=!flag;if(b)b.hidden=!flag}
 document.addEventListener('click',ev=>{let el=ev.target.closest('[data-nav],[data-building],[data-buildcatalog],[data-addbuilding],[data-zone],[data-openhero],[data-herotab],[data-rpgstat],[data-rpgslot],[data-recipe],[data-complete],[data-cancelorder],[data-removecommand],[data-modal],[data-closemodal],[data-demoquest]');if(!el){if(ev.target.id==='modal-overlay')document.getElementById('modal-root').innerHTML='';return}if(el.dataset.nav){go(el.dataset.nav);return}if(el.dataset.building){openBuilding(el.dataset.building);return}if(el.dataset.buildcatalog!==undefined){showBuildingCatalog();return}if(el.dataset.addbuilding){addPreviewBuilding(el.dataset.addbuilding);return}if(el.dataset.zone){if(HUNTING_ZONES.some(z=>z[0]===el.dataset.zone))go(el.dataset.zone);return}if(el.dataset.openhero!==undefined){state.hero=Number(el.dataset.openhero);state.heroTab='overview';go('heroes');return}if(el.dataset.herotab){if(['overview','orders'].includes(el.dataset.herotab)){state.heroTab=el.dataset.herotab;render()}return}if(el.dataset.rpgstat){
  const item=RPG_ATTRIBUTE_REFERENCE.find(x=>x[0]===el.dataset.rpgstat);
- if(item)modal(item[1],'Характеристика належить до переліку з 12 напрямів розвитку героя. Гравець зможе підвищувати кожну з них окремо за EXP. Значення, вартість наступного підвищення, тип (основна чи додаткова) та вплив ще не реалізовані.');
+ if(item)modal(item[1],(item[2]==='primary'?'Основна характеристика: її рівень розвитку враховується при визначенні рівня й рангу героя. ':'Додаткова характеристика: її розвиток безпосередньо не змінює рівень або ранг героя. ')+'Кожна характеристика покращується окремо за EXP. Значення, точна вартість і формула впливу ще не реалізовані.');
  return
 }
 if(el.dataset.rpgslot){
