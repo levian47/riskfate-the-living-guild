@@ -145,6 +145,141 @@
  .metric-top{font-size:11px}
  .metric strong{font-size:15px}
 }
+
+/* Hero profile preview: responsive, compact and fully keyboard-accessible controls. */
+.hero-page{max-width:1140px;margin:0 auto;display:grid;gap:12px;min-width:0}
+.hero-page-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px}
+.hero-back{border:0;background:transparent;color:var(--gold2);padding:7px 0;display:flex;align-items:center;gap:6px;min-height:40px;font-weight:650}
+.hero-back svg{transform:rotate(180deg)}
+.hero-profile{border:1px solid #4b4439;border-radius:13px;overflow:hidden;background:linear-gradient(130deg,#282827,#1c2022 55%,#1a1c1f);box-shadow:var(--shadow);min-width:0}
+.hero-profile-head{padding:16px 18px 9px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hero-identity{display:flex;align-items:center;gap:13px;min-width:0}
+.hero-profile-avatar{display:grid;place-items:center;width:60px;height:64px;flex:0 0 60px;border:1px solid #826940;border-radius:12px;background:linear-gradient(145deg,#5b4e3c,#302b27);color:#f1d49d;font:700 29px Georgia,serif}
+.hero-identity-text{min-width:0}
+.hero-identity-kicker{text-transform:uppercase;letter-spacing:1px;font-size:10px;color:var(--gold);font-weight:750}
+.hero-identity h1{font:700 clamp(22px,3vw,28px)/1.1 Georgia,serif;margin:4px 0 2px;color:#f1e8d9}
+.hero-role{color:var(--muted);font-size:13px}
+.hero-role span{color:var(--gold);padding:0 3px}
+.hero-switcher{display:flex;align-items:center;gap:7px;white-space:nowrap;color:var(--muted);font-size:12px}
+.hero-switch-btn{min-height:40px;min-width:40px;border:1px solid #534a3d;border-radius:9px;background:#282927;color:var(--gold2);font-size:26px;line-height:1;display:grid;place-items:center}
+.hero-switch-btn:hover,.hero-switch-btn:focus-visible{background:#39352e}
+.hero-profile-status{margin:0 18px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:7px;color:#c2d5ca;font-size:12px}
+.hero-profile-status svg{color:var(--green)}
+.hero-auto-label{margin-left:auto;border:1px solid #4b5149;border-radius:20px;color:#a2b5a7;padding:3px 8px;font-size:10px}
+.hero-vitals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px 18px 15px;border-top:1px solid #3a3d3d;background:#171b1d80}
+.hero-vital{min-width:0}
+.hero-vital-label{display:flex;justify-content:space-between;gap:6px;align-items:baseline;font-size:12px;color:var(--muted)}
+.hero-vital-label strong{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap}
+.hero-vital-label small{font-size:9px;font-weight:500;color:var(--dim)}
+.hero-vital-bar{height:6px;border-radius:10px;background:#101315;margin-top:6px;overflow:hidden}
+.hero-vital-bar>span{display:block;height:100%;border-radius:inherit}
+.hero-vital-bar.hp>span{background:#cf7775}.hero-vital-bar.mp>span{background:#83afd9}.hero-vital-bar.energy>span{background:#d1aa67}.hero-vital-bar.food>span{background:#76b58e}
+.hero-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.hero-tab{display:flex;justify-content:center;align-items:center;gap:6px;min-height:44px;padding:8px;border:1px solid var(--line);border-radius:9px;background:#222528;color:#bfbab1;font-weight:700;font-size:13px}
+.hero-tab svg{color:var(--gold);width:16px;height:16px}
+.hero-tab.active{background:#473b2b;border-color:#a78a59;color:#f2e6d0}
+.hero-tab-count{background:#6c5738;color:#fff0d2;border-radius:20px;font-size:10px;padding:0 6px}
+.hero-pane{min-width:0}
+.hero-overview-grid,.hero-orders-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hero-action-summary strong{display:block;font-size:16px;color:var(--text);margin-bottom:8px}
+.hero-action-summary .help{margin:0}
+.hero-inline-action{display:inline-flex;align-items:center;gap:7px;margin-top:13px}
+.hero-cycle{display:grid;gap:8px}
+.hero-cycle>div{display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px}
+.hero-cycle>div svg{color:var(--gold)}
+.hero-cycle .help{margin:4px 0 0}
+.hero-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:11px}
+.hero-shortcut{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border:1px solid var(--line);background:#232729;color:var(--text);border-radius:9px;font-weight:650;font-size:13px}
+.hero-shortcut svg{color:var(--gold)}
+.hero-shortcut:hover,.hero-asset-button:hover{border-color:var(--gold);background:#2a2c2d}
+.hero-submit{width:100%}
+.hero-queue-count{font-size:11px;color:var(--muted);padding-bottom:6px}
+.hero-orders-grid .panel{align-self:start}
+.hero-assets-intro{border:1px solid var(--line);background:#202326;border-radius:9px;padding:12px 14px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.hero-assets-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.hero-asset-button{display:flex;align-items:center;min-height:80px;text-align:left;gap:11px;padding:13px;border:1px solid var(--line);background:var(--panel2);border-radius:10px;color:var(--text)}
+.hero-asset-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:40px;border-radius:8px;background:#38332c;color:var(--gold)}
+.hero-asset-copy{display:grid;gap:3px;min-width:0}
+.hero-asset-copy strong{font-size:13px}.hero-asset-copy small{font-size:11px;color:var(--muted);line-height:1.3}
+.hero-asset-arrow{color:var(--gold);margin-left:auto;font-size:22px}
+@media (max-width:950px), (hover:none) and (pointer:coarse) and (max-width:1100px){
+ .hero-page{gap:9px}
+ .hero-profile-head{padding:12px 12px 9px}
+ .hero-profile-avatar{width:48px;height:52px;flex-basis:48px;font-size:23px}
+ .hero-identity{gap:10px}
+ .hero-identity h1{font-size:23px}
+ .hero-identity-kicker{font-size:9px}
+ .hero-role{font-size:12px}
+ .hero-profile-status{margin:0 12px 10px}
+ .hero-vitals{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;padding:12px}
+ .hero-overview-grid,.hero-orders-grid{grid-template-columns:minmax(0,1fr);gap:9px}
+ .hero-shortcuts{gap:6px;margin-top:9px}
+ .hero-shortcut{min-height:44px;gap:5px;font-size:12px}
+ .hero-asset-button{min-height:65px;padding:10px}
+ .hero-assets-grid{grid-template-columns:minmax(0,1fr);gap:7px}
+ .hero-page-bar{font-size:10px}
+}
+@media(max-width:370px){
+ .hero-profile-head{flex-wrap:wrap}
+ .hero-switcher{margin-left:auto}
+ .hero-auto-label{margin-left:0}
+ .hero-tab{font-size:12px;gap:4px}
+}
+
+/* RPG hero overview: permanent stats, gear, skills and personal inventory. */
+.hero-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rpg-demo-strip{display:flex;align-items:flex-start;gap:9px;border:1px solid #5b4b34;background:#2b2821;border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;line-height:1.45;color:#d6c4a5}
+.rpg-demo-strip svg{flex:0 0 15px;color:var(--gold)}
+.hero-rpg-layout{display:grid;grid-template-columns:minmax(216px,.95fr) minmax(245px,1.1fr) minmax(238px,.95fr);gap:10px;align-items:start}
+.rpg-section{border:1px solid var(--line);background:linear-gradient(145deg,#202326,#1b1f21);border-radius:12px;min-width:0;padding:12px}
+.rpg-section-head{display:flex;justify-content:space-between;align-items:center;gap:9px;padding-bottom:8px;border-bottom:1px solid #383c3e}
+.rpg-section-head h2{margin:0;color:#e8d7b6;font-size:14px;font-weight:750}
+.rpg-section-head span{font-size:10px;color:var(--dim);white-space:nowrap}
+.rpg-section-help{font-size:10px;line-height:1.4;color:var(--muted);min-height:29px;margin:8px 0 10px}
+.rpg-attribute-grid{display:grid;gap:3px}
+.rpg-attribute{width:100%;border:1px solid transparent;border-bottom-color:#383c3e;border-radius:4px;padding:6px 3px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;background:transparent;color:#ddd9d1;font-size:12px;min-height:30px}
+.rpg-attribute>span{min-width:0;overflow-wrap:anywhere}
+.rpg-attribute strong{font-size:14px;color:#b9a17a;font-weight:700;min-width:12px;text-align:right}
+.rpg-attribute:hover{background:#2b3032;border-color:#494e50}
+.rpg-middle{display:grid;gap:10px;min-width:0}
+.rpg-slot-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.rpg-slot{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;min-width:0;width:100%;aspect-ratio:1/1;min-height:48px;border-radius:9px;border:1px solid #41464a;background:linear-gradient(150deg,#2a2e31,#1e2225);color:#a5a098;padding:4px;overflow:hidden}
+.rpg-slot-art{display:grid;place-items:center;min-height:22px;color:#727779;opacity:.7}
+.rpg-slot-label{font-size:9px;line-height:1.08;text-align:center;overflow-wrap:anywhere}
+.rpg-slot--sample{background:linear-gradient(140deg,#383125,#2b2927);border-color:#887049;color:#ecd1a1}
+.rpg-slot--sample .rpg-slot-art{color:#e1bd7c;opacity:1}
+.rpg-slot-demo{position:absolute;top:2px;right:3px;color:#d9c096;font-size:7px;line-height:1}
+.rpg-slot:hover{border-color:var(--gold2);filter:brightness(1.09)}
+.rpg-slot:focus-visible,.rpg-attribute:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.rpg-action-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);background:#1d2123;border-radius:10px;padding:10px 12px;margin-top:10px}
+.rpg-action-footer>div{display:grid;gap:2px;min-width:0}
+.rpg-action-footer strong{font-size:12px}
+.rpg-action-footer span{font-size:11px;color:var(--muted)}
+.rpg-action-footer .button{min-height:40px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+@media(max-width:1050px){.hero-rpg-layout{grid-template-columns:minmax(220px,.9fr) minmax(245px,1.1fr)}.rpg-section--inventory{grid-column:1/-1}.rpg-section--inventory .rpg-slot-grid{grid-template-columns:repeat(8,minmax(0,1fr))}}
+@media(max-width:670px){.hero-rpg-layout{grid-template-columns:minmax(0,1fr);gap:9px}.rpg-section--inventory{grid-column:auto}.rpg-section--inventory .rpg-slot-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.rpg-section{padding:10px}.rpg-section-help{min-height:0}.rpg-attribute-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:10px}.rpg-attribute{font-size:11px}.rpg-slot{min-height:52px}.rpg-action-footer{flex-wrap:wrap}}
+@media(max-width:370px){.rpg-attribute-grid{grid-template-columns:minmax(0,1fr)}.rpg-slot-grid{gap:5px}}
+
+/* Compact, closed-by-default weapon mastery within RPG character overview. */
+.rpg-attribute-stack{display:grid;gap:10px;min-width:0;align-content:start}
+.rpg-attribute-value{display:flex;align-items:center;gap:7px;flex:none}
+.rpg-attribute-value small{display:inline-block;color:#9d8967;font-size:9px;font-weight:650;border:1px solid #64513b;background:#322b24;padding:2px 4px;border-radius:4px;white-space:nowrap}
+.rpg-mastery{padding:0;align-self:start;overflow:hidden}
+.rpg-mastery-toggle{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;padding:10px 12px;cursor:pointer}
+.rpg-mastery-toggle::-webkit-details-marker{display:none}
+.rpg-mastery-toggle:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.rpg-mastery-title,.rpg-mastery-meta{display:flex;align-items:center;gap:6px}
+.rpg-mastery-title{font-size:13px;color:#e8d7b6;min-width:0}
+.rpg-mastery-title svg{color:var(--gold)}
+.rpg-mastery-meta{font-size:10px;color:var(--muted);white-space:nowrap}
+.rpg-mastery-meta svg{color:var(--gold);transition:transform .15s}
+.rpg-mastery[open] .rpg-mastery-meta svg{transform:rotate(180deg)}
+.rpg-mastery-body{border-top:1px solid var(--line);padding:8px 12px 12px}
+.rpg-mastery-body>p{font-size:10px;color:var(--muted);line-height:1.45;margin:0 0 9px}
+.rpg-mastery-rows{display:grid;gap:2px}
+.rpg-mastery-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #373b3d;font-size:11px;line-height:1.3}
+.rpg-mastery-row strong{color:#b9a17a;font-size:13px}
+.rpg-mastery-body p.rpg-mastery-footnote{margin:9px 0 0}
 </style>
 </head>
 <body>
@@ -195,10 +330,13 @@ const BUILDING_CATALOG=[
  ['package','Крамниця припасів','Витратні предмети для експедицій','supplies']
 ];
 const HEROES=[{name:'Торен',cls:'Воїн',level:8,state:'Полює · Темний ліс',hp:72,mp:35,mpmax:60,command:[]},{name:'Еліра',cls:'Мисливиця',level:6,state:'Повертається до міста',hp:46,mp:38,mpmax:50,command:[]},{name:'Бран',cls:'Збирач',level:4,state:'Відпочиває у таверні',hp:91,mp:22,mpmax:40,command:[]}];
+const DEMO_HERO_NEEDS=[[64,81],[23,57],[88,69]];
 const INITIAL_INVENTORY=[['Залізна руда','Сировина',86,'шт.'],['Деревина','Сировина',48,'шт.'],['Лікарські трави','Сировина',34,'шт.'],['Шкіра вовка','Трофеї',21,'шт.'],['Малий еліксир здоров’я','Витратні',12,'шт.'],['Залізний меч','Спорядження',3,'шт.'],['Шкіряний обладунок','Спорядження',2,'шт.']];
 const RECIPES=[{id:'sword',name:'Залізний меч',cost:'4 залізної руди · 2 деревини',use:{'Залізна руда':4,'Деревина':2},time:12,icon:'sword'},{id:'potion',name:'Малий еліксир здоров’я',cost:'3 лікарські трави',use:{'Лікарські трави':3},time:7,icon:'flask'},{id:'armor',name:'Шкіряний обладунок',cost:'5 шкур вовка',use:{'Шкіра вовка':5},time:18,icon:'shield'}];
-const initial=()=>({page:'city',hero:0,inventory:INITIAL_INVENTORY.map(([name,category,qty,unit])=>({name,category,qty,unit})),production:[{name:'Заточування мечів',time:'8 хв',status:'У роботі'}],orders:[],commands:[[],[],[]],activity:[{name:'З’явилося нове замовлення на ринку',time:'10 хв тому'},{name:'У таверні доступні нові найманці',time:'27 хв тому'},{name:'Зміна ціни на залізну руду',time:'1 год тому'},{name:'Прибула караванна група',time:'2 год тому'}],policies:{autosell:true,autobuy:false},guildGold:1840,filter:'',showMarket:'all',addedBuildings:[],zone:'zone-forest',heroesExpanded:true});
+const initial=()=>({page:'city',hero:0,heroTab:'overview',inventory:INITIAL_INVENTORY.map(([name,category,qty,unit])=>({name,category,qty,unit})),production:[{name:'Заточування мечів',time:'8 хв',status:'У роботі'}],orders:[],commands:[[],[],[]],activity:[{name:'З’явилося нове замовлення на ринку',time:'10 хв тому'},{name:'У таверні доступні нові найманці',time:'27 хв тому'},{name:'Зміна ціни на залізну руду',time:'1 год тому'},{name:'Прибула караванна група',time:'2 год тому'}],policies:{autosell:true,autobuy:false},guildGold:1840,filter:'',showMarket:'all',addedBuildings:[],zone:'zone-forest',heroesExpanded:true});
 let state=initial();try{const raw=JSON.parse(localStorage.getItem('riskfate_ui_demo_v01')||'null');if(raw&&typeof raw==='object'){state={...state,...raw,page:NAV.some(n=>n[0]===raw.page)?raw.page:(['hunting','zone'].includes(raw.page)&&HUNTING_ZONES.some(z=>z[0]===raw.zone)?raw.zone:'city')};state.commands=Array.isArray(raw.commands)&&raw.commands.length===3?raw.commands:[[],[],[]];state.addedBuildings=Array.isArray(raw.addedBuildings)?[...new Set(raw.addedBuildings.filter(id=>BUILDING_CATALOG.some(x=>x[3]===id)))]:[];state.zone=['zone-forest','zone-ridge','zone-dark'].includes(raw.zone)?raw.zone:'zone-forest';state.heroesExpanded=raw.heroesExpanded!==false;}}catch(_e){}
+if(!['overview','orders'].includes(state.heroTab))state.heroTab='overview';
+if(!Number.isInteger(state.hero)||state.hero<0||state.hero>=HEROES.length)state.hero=0;
 function save(){try{localStorage.setItem('riskfate_ui_demo_v01',JSON.stringify(state))}catch(_e){}}
 function money(n){return Number(n).toLocaleString('uk-UA')}
 function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -232,7 +370,7 @@ function cityBuildings(){
 }
 function miniHero(h,i){
  const location=h.state.includes('·')?h.state.split('·').slice(1).join('·').trim():h.state;
- const vals=[['HP',h.hp,'hp'],['MP',Math.round(h.mp/Math.max(1,h.mpmax)*100),'mp'],['Енергія',[64,23,88][i]??65,'en'],['Ситість',[81,57,69][i]??75,'food']];
+ const vals=[['HP',h.hp,'hp'],['MP',Math.round(h.mp/Math.max(1,h.mpmax)*100),'mp'],['Енергія',DEMO_HERO_NEEDS[i]?.[0]??65,'en'],['Ситість',DEMO_HERO_NEEDS[i]?.[1]??75,'food']];
  const bars=vals.map(([label,value,key])=>'<span class="mini-meter '+key+'" role="meter" aria-label="'+label+' '+safe(h.name)+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+value+'" title="'+label+': '+value+'%"><span style="width:'+Math.max(0,Math.min(100,value))+'%"></span></span>').join('');
  return '<button class="mini-hero" type="button" data-openhero="'+i+'" aria-label="'+safe(h.name)+'. '+safe(h.state)+'. Відкрити героя"><span class="mini-portrait" aria-hidden="true">'+safe(h.name.slice(0,1))+'</span><span class="mini-right"><span class="mini-bars">'+bars+'</span><span class="mini-location">'+icon('pin',12)+safe(location)+'</span></span></button>'
 }
@@ -269,7 +407,170 @@ function renderCity(){
 }
 function guildHeroes(){return HEROES.map((h,i)=>`<div class="hero-row"><div class="avatar">${h.name[0]}</div><div><strong>${h.name} <span class="muted">· ${h.cls}, р. ${h.level}</span></strong><small>${h.state}</small></div><button class="button ghost tiny" data-openhero="${i}">Накази</button></div>`).join('')}
 function renderGuild(){return header('Керування / моя гільдія','Гільдія «Срібний шлях»','Герої, ресурси, виробництво та економічні правила в одному місці.','Ранг III')+`<div class="metrics">${metric('Баланс',money(state.guildGold),'coin','монет')}${metric('Герої','3 / 3','heroes','')}${metric('Ресурси',state.inventory.reduce((a,b)=>a+b.qty,0),'warehouse','од.')}${metric('Процеси',String(state.production.length),'clock','')}</div><div class="content-grid"><div class="stack">${panel('Розвиток гільдії','guild',`<div class="panel-body"><div class="split-label"><strong>Репутація · рівень 3</strong><span class="muted">6 320 / 8 000</span></div><div class="progress"><div style="width:79%"></div></div><div class="rowline"><div class="details"><strong>Спеціалізація</strong><small>Виробництво й експедиції</small></div><span class="pill ash">Демо</span></div><div class="rowline"><div class="details"><strong>Місць для героїв</strong><small>3 найнято · 3 доступно</small></div><span class="trailing">3 / 3</span></div></div>`)}${panel('Герої гільдії','heroes',`<div class="panel-body">${guildHeroes()}<button class="button secondary spaced" data-nav="heroes">Управління героями</button></div>`)}${panel('Розділи управління','settings',`<div class="panel-body"><div class="quicklist"><button class="quick" data-nav="warehouse">${icon('warehouse')}Склад</button><button class="quick" data-nav="production">${icon('anvil')}Виробництво</button><button class="quick" data-nav="market">${icon('market')}Торгівля</button><button class="quick" data-nav="heroes">${icon('heroes')}Накази</button><button class="quick" data-nav="quests">${icon('quests')}Завдання</button><button class="quick" data-nav="stats">${icon('stats')}Звіти</button></div></div>`)}</div><div class="stack">${panel('Черги та процеси','clock',`<div class="panel-body">${state.production.length?state.production.slice(0,5).map(p=>`<div class="activity">${icon('anvil')}<div><strong>${safe(p.name)}</strong><small>${safe(p.status)} · ${safe(p.time)}</small></div></div>`).join(''):'<div class="no-data">Активних процесів немає</div>'}<button class="button secondary spaced" data-nav="production">Відкрити виробництво</button></div>`)}${panel('Економічні правила','settings',`<div class="panel-body"><div class="rowline"><div class="details"><strong>Автоматичний продаж надлишків</strong><small>Лише демонстрація перемикача</small></div><input aria-label="Автоматичний продаж" type="checkbox" data-policy="autosell" ${state.policies.autosell?'checked':''}></div><div class="rowline"><div class="details"><strong>Автоматична закупівля</strong><small>Лише демонстрація перемикача</small></div><input aria-label="Автоматична закупівля" type="checkbox" data-policy="autobuy" ${state.policies.autobuy?'checked':''}></div><p class="help">У реальній грі потрібні ціни, ліміти й правила. Тут угоди не виконуються.</p></div>`)}</div></div>`}
-function renderHeroes(){let h=HEROES[state.hero];return header('Гільдія / герої','Управління героями','Вибирай персонажа, переглядай стан і формуй чергу прямих наказів.','Алгоритм автономний')+`<div class="content-grid"><div class="stack">${panel('Склад гільдії','heroes',`<div class="panel-body"><div class="hero-picker">${HEROES.map((v,i)=>`<button class="hero-option ${state.hero===i?'active':''}" data-openhero="${i}"><strong>${v.name}</strong><small>${v.cls} · рівень ${v.level}</small><small>HP ${v.hp}%</small></button>`).join('')}</div></div>`)}${panel('Картка героя','shield',`<div class="panel-body"><div class="selected-hero"><div class="selected-hero-head"><div class="avatar" style="width:52px;height:52px;font-size:23px">${h.name[0]}</div><div><h3>${h.name}</h3><div class="muted">${h.cls} · рівень ${h.level}</div><div class="pill spaced">${safe(h.state)}</div></div></div><div class="bars"><div><div class="bar-label"><span>Здоров'я</span><span>${h.hp} / 100</span></div><div class="bar"><span style="width:${h.hp}%"></span></div></div><div><div class="bar-label"><span>Мана</span><span>${h.mp} / ${h.mpmax}</span></div><div class="bar blue"><span style="width:${Math.round(h.mp/h.mpmax*100)}%"></span></div></div></div></div><div class="quicklist spaced"><button class="quick" data-modal="inventory">${icon('package')}Інвентар</button><button class="quick" data-modal="equip">${icon('shield')}Екіпірування</button><button class="quick" data-modal="skills">${icon('spark')}Навички</button></div></div>`)}${panel('Черга наказів','scroll',`<div class="panel-body">${state.commands[state.hero].length?state.commands[state.hero].map((c,i)=>`<div class="rowline"><div class="details"><strong>${i+1}. ${safe(c)}</strong><small>Заплановано · демонстрація</small></div><button class="button ghost tiny" data-removecommand="${i}" aria-label="Видалити наказ ${i+1}">${icon('cross',13)}</button></div>`).join(''):'<p class="muted">Немає додаткових наказів. Герой діє за автономним алгоритмом.</p>'}</div>`)}</div><div class="stack">${panel('Прямий наказ','arrow',`<form class="panel-body" id="commandForm"><label class="field"><span>Дія героя</span><select name="cmd" id="commandSelect"><option value="Повернутися в місто">Повернутися в місто</option><option value="Прийти в гільдію">Прийти в гільдію</option><option value="Відпочити">Відпочити</option><option value="Продати дозволені ресурси">Продати ресурси</option><option value="Купити предмет">Купити предмет</option><option value="Вирушити на розвідку">Вирушити на розвідку</option></select></label><div class="field spaced" id="purchaseField" hidden><span>Назва предмета</span><input name="item" maxlength="60" placeholder="Наприклад, залізний меч"></div><div class="field spaced" id="priceField" hidden><span>Максимальна ціна (монет)</span><input name="maxprice" type="number" min="1" max="1000000" value="100"></div><button class="button spaced" style="width:100%" type="submit">Додати до черги наказів</button><p class="help">Команди зберігаються лише в локальному демонстраційному стані.</p></form>`)}${panel('Пріоритети алгоритму','clock',`<div class="panel-body"><div class="activity">${icon('shield')}<div><strong>1. Безпека героя</strong><small>Відступ і збереження життя</small></div></div><div class="activity">${icon('arrow')}<div><strong>2. Прямі накази</strong><small>Після безпечного завершення дії</small></div></div><div class="activity">${icon('clock')}<div><strong>3. Автономний цикл</strong><small>Підготовка → експедиція → повернення → відпочинок</small></div></div></div>`)}</div></div>`}
+
+
+/* Reference-only layout data, not hero-owned state or approved balancing. */
+const RPG_ATTRIBUTE_REFERENCE=[
+ ['hp','HP'],['mp','MP'],['hpregen','Регенерація HP'],['mpregen','Регенерація MP'],
+ ['strength','Сила'],['agility','Спритність'],['intellect','Інтелект'],['armor','Фізичний захист'],
+ ['resistance','Магічний захист'],['carry','Вантажопідйомність'],['speed','Швидкість'],['luck','Удача']
+];
+const RPG_SLOT_PREVIEW={
+ equip:[
+  ['Зброя','sword','Залізний меч'],['Друга рука','shield',null],
+  ['Голова','shield',null],['Броня','shield','Шкіряний обладунок'],
+  ['Руки','shield',null],['Взуття','shield',null],
+  ['Аксесуар I','gem',null],['Аксесуар II','gem',null]
+ ],
+ skills:[
+  ['Навичка 1','spark','Медитація'],['Навичка 2','sword',null],
+  ['Навичка 3','shield',null],['Навичка 4','spark',null],
+  ['Навичка 5','spark',null],['Навичка 6','spark',null],
+  ['Навичка 7','spark',null],['Навичка 8','spark',null]
+ ],
+ inventory:[
+  ['Комірка 1','flask','Малий еліксир здоров’я'],['Комірка 2','package','Шкіра вовка'],
+  ['Комірка 3','anvil','Залізна руда'],...Array.from({length:13},(_,i)=>['Комірка '+(i+4),'package',null])
+ ]
+};
+function rpgSlot(category,item,index){
+ const [label,ico,sample]=item;
+ const isSample=Boolean(sample);
+ const accessible=(sample?'Зразок: '+sample+'. ':'')+label+'. Переглянути опис слота';
+ return `<button type="button" class="rpg-slot ${isSample?'rpg-slot--sample':'rpg-slot--empty'}" data-rpgslot="${category}" data-slotindex="${index}" title="${safe(accessible)}" aria-label="${safe(accessible)}">
+ <span class="rpg-slot-art">${icon(ico,23)}</span>
+ <span class="rpg-slot-label">${safe(label)}</span>
+ ${isSample?'<span class="rpg-slot-demo">Зразок</span>':''}
+ </button>`;
+}
+function rpgSlotPanel(title,category,description){
+ const list=RPG_SLOT_PREVIEW[category];
+ return `<section class="rpg-section rpg-section--${category}">
+  <div class="rpg-section-head"><h2>${safe(title)}</h2><span>${list.length} слотів · макет</span></div>
+  <p class="rpg-section-help">${safe(description)}</p>
+  <div class="rpg-slot-grid" aria-label="${safe(title)}">${list.map((item,i)=>rpgSlot(category,item,i)).join('')}</div>
+ </section>`;
+}
+
+const RPG_MASTERY_DIRECTIONS=[
+ 'Точність автоатак',
+ 'Точність навичок',
+ 'Шанс фізичного критичного удару',
+ 'Сила фізичного критичного удару',
+ 'Шанс магічного критичного удару',
+ 'Сила магічного критичного удару'
+];
+function rpgMastery(){
+ return `<details class="rpg-section rpg-mastery">
+  <summary class="rpg-mastery-toggle">
+   <span class="rpg-mastery-title">${icon('sword',18)}<strong>Майстерність зброї</strong></span>
+   <span class="rpg-mastery-meta">6 напрямів ${icon('down',16)}</span>
+  </summary>
+  <div class="rpg-mastery-body">
+   <p>Кожен тип зброї має окрему майстерність. Відкритий герой поки не має підключених даних майстерності.</p>
+   <div class="rpg-mastery-rows">${RPG_MASTERY_DIRECTIONS.map(name=>`<div class="rpg-mastery-row"><span>${safe(name)}</span><strong title="Значення не реалізовано">—</strong></div>`).join('')}</div>
+   <p class="rpg-mastery-footnote">Одночасно розвивається один вибраний напрямок для зброї, якою користується герой. Прогрес нараховується за перемоги, а не витратою EXP.</p>
+  </div>
+ </details>`;
+}
+
+function rpgAttributes(){
+ return `<section class="rpg-section rpg-section--attributes">
+  <div class="rpg-section-head"><h2>Характеристики</h2><span>12 · розвиток за EXP</span></div>
+  <p class="rpg-section-help">Кожну характеристику можна підвищувати окремо за EXP. Значення, ціни та поділ на основні/додаткові ще не реалізовані.</p>
+  <div class="rpg-attribute-grid">${RPG_ATTRIBUTE_REFERENCE.map(([id,label])=>`<button type="button" class="rpg-attribute" data-rpgstat="${id}" title="${safe(label)}: підвищення за EXP (ще не реалізовано)">
+    <span>${safe(label)}</span><span class="rpg-attribute-value"><strong aria-label="значення не визначено">—</strong><small aria-hidden="true">+ EXP</small></span>
+   </button>`).join('')}</div>
+ </section>`;
+}
+function rpgInventoryPanel(){
+ return rpgSlotPanel('Інвентар','inventory','Квадратні комірки особистого інвентарю героя. Заповнені іконки — лише зразки.');
+}
+function rpgEquipmentAndSkills(){
+ return `<div class="rpg-middle">
+  ${rpgSlotPanel('Екіпірування','equip','Типи й кількість слотів — демонстраційний макет.')}
+  ${rpgSlotPanel('Навички','skills','Зразки іконок не означають вивчених героєм навичок.')}
+ </div>`;
+}
+
+function heroVital(label,value,max,tone,isDemo=false){
+ const percentage=Math.max(0,Math.min(100,Math.round(value/Math.max(1,max)*100)));
+ return `<div class="hero-vital">
+  <div class="hero-vital-label"><span>${safe(label)}</span><strong>${value} / ${max}${isDemo?'<small> · демо</small>':''}</strong></div>
+  <div class="hero-vital-bar ${tone}" role="progressbar" aria-label="${safe(label)}" aria-valuemin="0" aria-valuemax="${max}" aria-valuenow="${value}"><span style="width:${percentage}%"></span></div>
+ </div>`;
+}
+function renderHeroes(){
+ const i=state.hero,h=HEROES[i],tab=state.heroTab;
+ const [energy,food]=DEMO_HERO_NEEDS[i]||[65,75];
+ const count=state.commands[i].length;
+ const currentLocation=safe(h.state);
+ const summary=`<div class="hero-profile">
+  <div class="hero-profile-head">
+   <div class="hero-identity">
+    <span class="hero-profile-avatar" aria-hidden="true">${safe(h.name[0])}</span>
+    <div class="hero-identity-text">
+     <div class="hero-identity-kicker">Герой гільдії · демонстрація</div>
+     <h1>${safe(h.name)}</h1>
+     <div class="hero-role">${safe(h.cls)} <span>·</span> Рівень ${h.level}</div>
+    </div>
+   </div>
+   <div class="hero-switcher" aria-label="Перемикання героїв">
+    <button type="button" class="hero-switch-btn" data-openhero="${(i+HEROES.length-1)%HEROES.length}" aria-label="Попередній герой">‹</button>
+    <span>${i+1} / ${HEROES.length}</span>
+    <button type="button" class="hero-switch-btn" data-openhero="${(i+1)%HEROES.length}" aria-label="Наступний герой">›</button>
+   </div>
+  </div>
+  <div class="hero-profile-status">${icon('pin',16)}<span>${currentLocation}</span><span class="hero-auto-label">Автономний режим</span></div>
+  <div class="hero-vitals">
+   ${heroVital('HP',h.hp,100,'hp')}
+   ${heroVital('MP',h.mp,h.mpmax,'mp')}
+   ${heroVital('Енергія',energy,100,'energy',true)}
+   ${heroVital('Ситість',food,100,'food',true)}
+  </div>
+ </div>`;
+
+ const tabs=[['overview','Персонаж','shield'],['orders','Накази','scroll']];
+ const tabBar=`<nav class="hero-tabs" aria-label="Розділи героя">${tabs.map(([id,label,ico])=>`<button type="button" class="hero-tab ${tab===id?'active':''}" data-herotab="${id}" aria-pressed="${tab===id}">${icon(ico,16)}<span>${label}</span>${id==='orders'&&count?'<span class="hero-tab-count">'+count+'</span>':''}</button>`).join('')}</nav>`;
+ let content='';
+ if(tab==='overview'){
+  content=`<div class="rpg-demo-strip">${icon('info',15)} <span><strong>Макет RPG-слотів.</strong> Іконки позначають зразки предметів і навичок, а не фактичне майно героя. Характеристики — з референсу 3D Pro; значення не визначені.</span></div>
+  <div class="hero-rpg-layout">
+   ${`<div class="rpg-attribute-stack">${rpgAttributes()}${rpgMastery()}</div>`}
+   ${rpgEquipmentAndSkills()}
+   ${rpgInventoryPanel()}
+  </div>
+  <div class="rpg-action-footer">
+   <div><strong>Поточна дія</strong><span>${currentLocation}</span></div>
+   <button type="button" class="button secondary" data-herotab="orders">${icon('scroll',16)} Накази ${count?'('+count+')':''}</button>
+  </div>`;
+ }else if(tab==='orders'){
+  const queue=count?state.commands[i].map((cmd,k)=>`<div class="rowline"><div class="details"><strong>${k+1}. ${safe(cmd)}</strong><small>Заплановано · демонстрація</small></div><button type="button" class="button ghost tiny" data-removecommand="${k}" aria-label="Видалити наказ ${k+1}">${icon('cross',13)}</button></div>`).join(''):'<p class="muted">Додаткових наказів немає. Герой діє за автономним алгоритмом.</p>';
+  content=`<div class="hero-orders-grid">
+   ${panel('Прямий наказ','arrow',`<form class="panel-body" id="commandForm">
+    <label class="field"><span>Дія героя</span><select name="cmd" id="commandSelect">
+     <option value="Повернутися в місто">Повернутися в місто</option>
+     <option value="Прийти в гільдію">Прийти в гільдію</option>
+     <option value="Відпочити">Відпочити</option>
+     <option value="Продати дозволені ресурси">Продати ресурси</option>
+     <option value="Купити предмет">Купити предмет</option>
+     <option value="Вирушити на розвідку">Вирушити на розвідку</option>
+    </select></label>
+    <label class="field spaced" id="purchaseField" hidden><span>Назва предмета</span><input name="item" maxlength="60" placeholder="Наприклад, залізний меч"></label>
+    <label class="field spaced" id="priceField" hidden><span>Максимальна ціна (монет)</span><input name="maxprice" type="number" min="1" max="1000000" value="100"></label>
+    <button class="button spaced hero-submit" type="submit">Додати наказ</button>
+    <p class="help">Накази зберігаються тільки в локальному демостані.</p>
+   </form>`)}
+   ${panel('Черга наказів','scroll',`<div class="panel-body"><div class="hero-queue-count">${count} наказів у черзі</div>${queue}</div>`)}
+  </div>`;
+ }
+ return `<div class="hero-page">
+  <div class="hero-page-bar"><button type="button" class="hero-back" data-nav="guild">${icon('arrow',14)} До гільдії</button><span>Профіль персонажа · UI-прототип</span></div>
+  ${summary}
+  ${tabBar}
+  <div class="hero-pane" aria-live="polite">${content}</div>
+ </div>`;
+}
 function renderWarehouse(){let filtered=state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA')));return header('Гільдія / запаси','Склад гільдії','Персональні інвентарі героїв і склад мають окремі місця зберігання, але спільного власника — гільдію.','Демонстраційні запаси')+`<div class="metrics">${metric('Усього одиниць',state.inventory.reduce((a,b)=>a+b.qty,0),'warehouse','шт.')}${metric('Найменувань',state.inventory.length,'package','')}${metric('Сировина',state.inventory.filter(x=>x.category==='Сировина').reduce((a,b)=>a+b.qty,0),'anvil','шт.')}${metric('Заявок на продаж',state.orders.filter(o=>o.type==='Продаж').length,'market','')}</div>${panel('Облік ресурсів','warehouse',`<div class="panel-body"><label class="field"><span>Пошук у складі</span><input id="warehouseSearch" value="${safe(state.filter)}" placeholder="Назва ресурсу або предмета"></label><div class="table-wrap spaced"><table class="data-table"><thead><tr><th>Предмет</th><th>Категорія</th><th class="num">Кількість</th></tr></thead><tbody id="warehouseRows">${renderWarehouseRows(filtered)}</tbody></table></div><p class="help">У прототипі склад змінюється після створення демонстраційного виробничого замовлення.</p></div>`)}`}
 function renderWarehouseRows(filtered){return filtered.map(x=>`<tr><td>${safe(x.name)}</td><td class="muted">${safe(x.category)}</td><td class="num">${x.qty} ${safe(x.unit)}</td></tr>`).join('')||'<tr><td colspan="3" class="no-data">Нічого не знайдено</td></tr>'}
 function renderProduction(){return header('Гільдія / ремесла','Виробництво','Створення предметів зі складських матеріалів. Черги та списання в цьому файлі — лише локальна симуляція.','Без реального таймера')+`<div class="content-grid"><div class="stack">${panel('Рецепти майстерень','anvil',`<div class="panel-body">${RECIPES.map(r=>`<div class="recipe"><div class="recipe-icon">${icon(r.icon)}</div><div class="recipe-main"><strong>${r.name}</strong><small>${r.cost} · умовно ${r.time} хв</small></div><button class="button tiny" data-recipe="${r.id}">Виготовити</button></div>`).join('')}</div>`)}${panel('Модель економіки','info',`<div class="panel-body"><p class="muted" style="margin:0">Виробництво бере сировину зі складу гільдії. Передача матеріалів між власними установами не є зовнішньою купівлею або продажем.</p></div>`)}</div><div class="stack">${panel('Черги майстерень','clock',`<div class="panel-body">${state.production.length?state.production.map((p,i)=>`<div class="activity">${icon('anvil')}<div style="flex:1"><strong>${safe(p.name)}</strong><small>${safe(p.status)} · ${safe(p.time)}</small></div>${p.status==='Заплановано'?`<button class="button ghost tiny" data-complete="${i}">Завершити</button>`:''}</div>`).join(''):'<div class="no-data">Черга порожня</div>'}<p class="help">Кнопка «Завершити» моделює отримання предмета, без серверного часу.</p></div>`)}${panel('Ключові запаси','package',`<div class="panel-body">${state.inventory.filter(x=>x.category==='Сировина').map(x=>`<div class="rowline"><strong>${safe(x.name)}</strong><span class="trailing">${x.qty} шт.</span></div>`).join('')}</div>`)}</div></div>`}
@@ -296,7 +597,21 @@ function openBuilding(target){
 function addRecipe(id){let r=RECIPES.find(x=>x.id===id);if(!r)return;let missing=Object.entries(r.use).filter(([name,n])=>(state.inventory.find(v=>v.name===name)?.qty||0)<n);if(missing.length){toast('Недостатньо матеріалів: '+missing.map(([n])=>n).join(', '));return}for(const [name,n] of Object.entries(r.use))state.inventory.find(v=>v.name===name).qty-=n;state.production.push({name:r.name,time:r.time+' хв',status:'Заплановано'});toast('Демозамовлення додано. Матеріали списані зі складу.');render()}
 function completeRecipe(i){let p=state.production[i];if(!p||p.status!=='Заплановано')return;let stock=state.inventory.find(v=>v.name===p.name);if(stock)stock.qty++;else state.inventory.push({name:p.name,category:'Готова продукція',qty:1,unit:'шт.'});state.production.splice(i,1);toast('Демовиробництво завершене: '+p.name);render()}
 function commandToggle(){let flag=document.getElementById('commandSelect')?.value==='Купити предмет';let a=document.getElementById('purchaseField'),b=document.getElementById('priceField');if(a)a.hidden=!flag;if(b)b.hidden=!flag}
-document.addEventListener('click',ev=>{let el=ev.target.closest('[data-nav],[data-building],[data-buildcatalog],[data-addbuilding],[data-zone],[data-openhero],[data-recipe],[data-complete],[data-cancelorder],[data-removecommand],[data-modal],[data-closemodal],[data-demoquest]');if(!el){if(ev.target.id==='modal-overlay')document.getElementById('modal-root').innerHTML='';return}if(el.dataset.nav){go(el.dataset.nav);return}if(el.dataset.building){openBuilding(el.dataset.building);return}if(el.dataset.buildcatalog!==undefined){showBuildingCatalog();return}if(el.dataset.addbuilding){addPreviewBuilding(el.dataset.addbuilding);return}if(el.dataset.zone){if(HUNTING_ZONES.some(z=>z[0]===el.dataset.zone))go(el.dataset.zone);return}if(el.dataset.openhero!==undefined){state.hero=Number(el.dataset.openhero);go('heroes');return}if(el.dataset.recipe){addRecipe(el.dataset.recipe);return}if(el.dataset.complete!==undefined){completeRecipe(Number(el.dataset.complete));return}if(el.dataset.cancelorder!==undefined){state.orders.splice(Number(el.dataset.cancelorder),1);toast('Демозаявку скасовано');render();return}if(el.dataset.removecommand!==undefined){state.commands[state.hero].splice(Number(el.dataset.removecommand),1);render();return}if(el.dataset.modal){modal({inventory:'Інвентар героя',equip:'Екіпірування',skills:'Навички'}[el.dataset.modal], 'Цей розділ буде деталізовано після погодження характеристик героїв та слотів.');return}if(el.dataset.closemodal){document.getElementById('modal-root').innerHTML='';return}if(el.dataset.demoquest){modal(el.dataset.demoquest,'Завдання наведене для демонстрації інтерфейсу. Систему прийняття та виконання контрактів ще не підключено.');return}});
+document.addEventListener('click',ev=>{let el=ev.target.closest('[data-nav],[data-building],[data-buildcatalog],[data-addbuilding],[data-zone],[data-openhero],[data-herotab],[data-rpgstat],[data-rpgslot],[data-recipe],[data-complete],[data-cancelorder],[data-removecommand],[data-modal],[data-closemodal],[data-demoquest]');if(!el){if(ev.target.id==='modal-overlay')document.getElementById('modal-root').innerHTML='';return}if(el.dataset.nav){go(el.dataset.nav);return}if(el.dataset.building){openBuilding(el.dataset.building);return}if(el.dataset.buildcatalog!==undefined){showBuildingCatalog();return}if(el.dataset.addbuilding){addPreviewBuilding(el.dataset.addbuilding);return}if(el.dataset.zone){if(HUNTING_ZONES.some(z=>z[0]===el.dataset.zone))go(el.dataset.zone);return}if(el.dataset.openhero!==undefined){state.hero=Number(el.dataset.openhero);state.heroTab='overview';go('heroes');return}if(el.dataset.herotab){if(['overview','orders'].includes(el.dataset.herotab)){state.heroTab=el.dataset.herotab;render()}return}if(el.dataset.rpgstat){
+ const item=RPG_ATTRIBUTE_REFERENCE.find(x=>x[0]===el.dataset.rpgstat);
+ if(item)modal(item[1],'Характеристика належить до переліку з 12 напрямів розвитку героя. Гравець зможе підвищувати кожну з них окремо за EXP. Значення, вартість наступного підвищення, тип (основна чи додаткова) та вплив ще не реалізовані.');
+ return
+}
+if(el.dataset.rpgslot){
+ const arr=RPG_SLOT_PREVIEW[el.dataset.rpgslot]||[];
+ const item=arr[Number(el.dataset.slotindex)];
+ if(item){
+  const sample=item[2]?'Візуальний зразок: '+safe(item[2])+'. ':'';
+  modal(item[0],sample+'Це макет квадратного RPG-слота. Предмет або навичка не додані до майна героя; остаточні типи й кількість слотів ще не затверджені.');
+ }
+ return
+}
+if(el.dataset.recipe){addRecipe(el.dataset.recipe);return}if(el.dataset.complete!==undefined){completeRecipe(Number(el.dataset.complete));return}if(el.dataset.cancelorder!==undefined){state.orders.splice(Number(el.dataset.cancelorder),1);toast('Демозаявку скасовано');render();return}if(el.dataset.removecommand!==undefined){state.commands[state.hero].splice(Number(el.dataset.removecommand),1);render();return}if(el.dataset.modal){modal({inventory:'Інвентар героя',equip:'Екіпірування',skills:'Навички'}[el.dataset.modal], 'Цей розділ буде деталізовано після погодження характеристик героїв та слотів.');return}if(el.dataset.closemodal){document.getElementById('modal-root').innerHTML='';return}if(el.dataset.demoquest){modal(el.dataset.demoquest,'Завдання наведене для демонстрації інтерфейсу. Систему прийняття та виконання контрактів ще не підключено.');return}});
 document.addEventListener('submit',ev=>{if(ev.target.id==='commandForm'){ev.preventDefault();let f=new FormData(ev.target),cmd=f.get('cmd');if(cmd==='Купити предмет'){let item=String(f.get('item')||'').trim(),price=Number(f.get('maxprice'));if(!item||!(price>0)){toast('Вкажіть назву товару й максимальну ціну');return}cmd=`Купити «${item}» (до ${price} монет)`}state.commands[state.hero].push(cmd);toast('Наказ додано до локальної черги');render()}if(ev.target.id==='marketForm'){ev.preventDefault();let f=new FormData(ev.target),qty=Number(f.get('qty')),price=Number(f.get('price'));if(!Number.isSafeInteger(qty)||qty<1||!Number.isSafeInteger(price)||price<1){toast('Перевір кількість і ціну');return}state.orders.push({type:String(f.get('type')),item:String(f.get('item')),qty,price});toast('Демонстраційну заявку створено без реальної торгівлі');render()}});
 document.addEventListener('toggle',ev=>{if(ev.target.matches('details.hero-monitor')){state.heroesExpanded=ev.target.open;save()}},true);
 document.addEventListener('change',ev=>{if(ev.target.id==='commandSelect'){commandToggle()}if(ev.target.id==='marketFilter'){state.showMarket=ev.target.value;render()}if(ev.target.dataset.policy){state.policies[ev.target.dataset.policy]=ev.target.checked;save();toast('Налаштування збережено лише в цьому браузері')}});
