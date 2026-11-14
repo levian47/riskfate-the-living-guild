@@ -397,26 +397,32 @@
 @media(max-width:420px){.recovery-sandbox-resources{grid-template-columns:minmax(0,1fr)}}
 
 /* Compact event-driven cycle tester: entirely separate from persisted game/UI state. */
-.hero-cycle{border:1px solid var(--line);border-radius:10px;background:var(--panel2);margin:14px 0;overflow:hidden}
+.hero-cycle{display:block;min-width:0;border:1px solid var(--line);border-radius:10px;background:#202427;margin:12px 0;overflow:hidden}
 .hero-cycle>summary{cursor:pointer;padding:12px 15px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:750;list-style:none}
 .hero-cycle>summary::-webkit-details-marker{display:none}
 .hero-cycle>summary span{font-size:11px;color:var(--muted);font-weight:500}
 .hero-cycle>summary:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
-.hero-cycle-body{padding:12px 14px;border-top:1px solid var(--line);display:grid;gap:12px}
+/* Explicitly override legacy ".hero-cycle>div{display:flex}" used by older hero rows. */
+.hero-cycle>.hero-cycle-body{box-sizing:border-box;width:100%;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:11px;padding:12px;border-top:1px solid var(--line);color:var(--text);font-size:12px}
+.hero-cycle>.hero-cycle-body>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.hero-cycle-instructions{display:grid;gap:5px}
+.hero-cycle-instructions strong{font-size:12px;color:var(--gold2)}
+.hero-cycle-instructions p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
 .hero-cycle-state{border:1px solid #56482f;background:#2b2924;padding:11px 12px;border-radius:8px}
-.hero-cycle-state strong{color:var(--gold2)}
-.hero-cycle-state p{font-size:12px;margin:6px 0 0}
-.hero-cycle-ranges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.hero-cycle-state strong{color:var(--gold2);font-size:13px}
+.hero-cycle-state p{font-size:12px;line-height:1.5;margin:6px 0 0}
+.hero-cycle-ranges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .hero-cycle-range{min-width:0;display:grid;gap:5px}
-.hero-cycle-range span{display:flex;justify-content:space-between;gap:8px;font-size:11px}
+.hero-cycle-range span{display:flex;justify-content:space-between;gap:8px;font-size:12px}
 .hero-cycle-range strong{color:var(--gold2)}
-.hero-cycle-range input{width:100%;min-height:28px;margin:0;accent-color:var(--gold)}
-.hero-cycle-buttons{display:flex;flex-wrap:wrap;gap:7px}
-.hero-cycle-buttons .button{font-size:11px;min-height:35px;padding:7px 10px}
-.hero-cycle-journal{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+.hero-cycle-range input{width:100%;height:32px;margin:0;accent-color:var(--gold);touch-action:pan-y}
+.hero-cycle-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.hero-cycle-buttons .button{min-width:0;white-space:normal;line-height:1.25;font-size:11px;min-height:42px;padding:8px}
+.hero-cycle-journal{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 .hero-cycle-journal>strong{font-size:12px;color:var(--text)}
-.hero-cycle-journal ol{margin:7px 0 0;padding-left:18px;display:grid;gap:5px}
-@media(max-width:480px){.hero-cycle-ranges{grid-template-columns:1fr}.hero-cycle>summary{align-items:flex-start}}
+.hero-cycle-journal ol{margin:8px 0 0;padding-left:20px;display:grid;gap:6px;line-height:1.5}
+.hero-cycle-body>.help{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+@media(max-width:600px){.hero-cycle-ranges{grid-template-columns:minmax(0,1fr)}.hero-cycle>summary{align-items:flex-start}.hero-cycle>.hero-cycle-body{padding:11px}}
 </style>
 </head>
 <body>
@@ -842,12 +848,10 @@ function refreshRecoverySandbox(){
 
 /* Event-driven UI-only hero cycle: no combat formulas, travel timers, transactions or approved recovery priority. */
 function freshHeroCycle(i){
- const h=HEROES[i],needs=DEMO_HERO_NEEDS[i]||[65,75];
- return {active:false,phase:'prepare',escapedFailed:false,resource:{
-  HP:Math.max(0,Math.min(100,Math.round(h.hp))),
-  MP:Math.max(0,Math.min(100,Math.round(100*h.mp/Math.max(1,h.mpmax)))),
-  Energy:needs[0],Food:needs[1]
- },reason:'Натисни «Запустити цикл», щоб перевірити переходи.',journal:[]};
+ // Full test-only resources make the first transition demonstrable; never change HEROES.
+ return {active:false,phase:'prepare',escapedFailed:false,
+  resource:{HP:100,MP:100,Energy:100,Food:100},
+  reason:'Спершу збережи пороги, потім запусти тестовий цикл.',journal:[]};
 }
 const HERO_CYCLE_DEMOS=Array.from({length:HEROES.length},(_,i)=>freshHeroCycle(i));
 const HERO_CYCLE_LABELS={prepare:'Підготовка',hunt:'Полювання',combat:'Бій',recover:'Відновлення'};
@@ -859,6 +863,13 @@ function heroCycleThresholds(i){
   limits[key]={low,high};
  }
  return limits;
+}
+function heroCycleMissingThresholds(i){
+ const p=state.heroInstructions[i];
+ return HERO_METRIC_THRESHOLDS.filter(([key])=>{
+  const low=readinessPercent(p,'return'+key),high=readinessPercent(p,'ready'+key);
+  return low===null||high===null||low>=high;
+ }).map(([,label])=>label);
 }
 function heroCycleLog(c,msg){
  c.journal.unshift(msg);
@@ -877,9 +888,10 @@ function heroCycleReconcile(i){
  if(!t){
   // Updating settings must not end an ongoing fight.
   if(c.phase!=='combat')c.phase='prepare';
+  const missing=heroCycleMissingThresholds(i).join(', ');
   c.reason=c.phase==='combat'
-   ?'Пороги не повністю налаштовані. Поточний тестовий бій триває, а оцінка переходів призупинена.'
-   :'Встанови і збережи обидва пороги для всіх чотирьох ресурсів. Без цього автоматичний перехід заблоковано.';
+   ?'Пороги потрібно зберегти: '+missing+'. Бій продовжується, оцінка переходів призупинена.'
+   :'Не налаштовані пороги: '+missing+'. Встанови дві межі для кожного показника й натисни «Зберегти межі».';
   return;
  }
  const keys=HERO_METRIC_THRESHOLDS.map(([key])=>key);
@@ -930,7 +942,7 @@ function heroCycleEvent(i,event,key,value){
   c.resource[key]=Math.max(0,Math.min(100,Math.round(n)));
   heroCycleReconcile(i);
  }else if(event==='start'){
-  if(c.active)return false;
+  if(c.active||!heroCycleThresholds(i))return false;
   c.active=true;
   heroCycleLog(c,'Тестовий цикл запущено; перевіряємо встановлені пороги.');
   heroCycleReconcile(i);
@@ -962,20 +974,27 @@ function heroCycleEvent(i,event,key,value){
  return true;
 }
 function heroCycleInner(i){
- const c=HERO_CYCLE_DEMOS[i],thresholds=heroCycleThresholds(i),canFlee=c.active&&c.phase==='combat'&&thresholds&&c.resource.HP<thresholds.HP.low&&!c.escapedFailed;
+ const c=HERO_CYCLE_DEMOS[i],thresholds=heroCycleThresholds(i),missing=heroCycleMissingThresholds(i),canFlee=c.active&&c.phase==='combat'&&thresholds&&c.resource.HP<thresholds.HP.low&&!c.escapedFailed;
+ const readinessText=missing.length
+  ?'Пороги: '+(4-missing.length)+'/4. Потрібно зберегти: '+missing.join(', ')+'.'
+  :'Пороги: 4/4 збережені. Стенд готовий до запуску.';
+ const guideText=c.active
+  ?'Змінюй ресурси повзунками та натискай «Почати тестовий бій» / «Завершити бій». Після бою система сама оцінить пороги.'
+  :'1. Встанови й збережи пороги вище. 2. Натисни «Запустити цикл». 3. Знижуй тестові ресурси й спостерігай за реакцією.';
  const controls=HERO_METRIC_THRESHOLDS.map(([key,label])=>
   '<label class="hero-cycle-range"><span>'+safe(label)+' <strong id="heroCycleValue_'+key+'">'+c.resource[key]+'%</strong></span>'+
   '<input type="range" min="0" max="100" step="1" value="'+c.resource[key]+'" data-cycle-resource="'+key+'" aria-label="Тестовий ресурс '+safe(label)+'"></label>').join('');
  const btn=(id,label,disabled)=>'<button type="button" class="button secondary" data-cycle-action="'+id+'" '+(disabled?'disabled':'')+'>'+label+'</button>';
  const log=c.journal.length?c.journal.map(s=>'<li>'+safe(s)+'</li>').join(''):'<li>Ще немає рішень.</li>';
- return '<div class="hero-cycle-state" id="heroCycleState"><strong>'+safe(HERO_CYCLE_LABELS[c.phase])+(c.active?' · активний стенд':' · не запущено')+'</strong><p>'+safe(c.reason)+'</p></div>'+
+ return '<div class="hero-cycle-instructions"><strong>'+safe(readinessText)+'</strong><p>'+safe(guideText)+'</p></div>'+
+  '<div class="hero-cycle-state" id="heroCycleState"><strong>'+safe(HERO_CYCLE_LABELS[c.phase])+(c.active?' · активний стенд':' · не запущено')+'</strong><p>'+safe(c.reason)+'</p></div>'+
   '<div class="hero-cycle-ranges">'+controls+'</div>'+
-  '<div class="hero-cycle-buttons">'+btn('start','Запустити цикл',c.active)+btn('battle','Почати тестовий бій',!c.active||c.phase!=='hunt')+
+  '<div class="hero-cycle-buttons">'+btn('start','Запустити цикл',c.active||!thresholds)+btn('battle','Почати тестовий бій',!c.active||c.phase!=='hunt')+
   btn('finish','Завершити бій',!c.active||c.phase!=='combat')+
   btn('flee-success','Втеча вдалася',!canFlee)+btn('flee-fail','Втеча не вдалася',!canFlee)+
   btn('reset','Скинути стенд',false)+'</div>'+
   '<div class="hero-cycle-journal"><strong>Журнал переходів</strong><ol id="heroCycleLog">'+log+'</ol></div>'+
-  '<p class="help">Тестові ресурси й журнал не змінюють героя та не зберігаються після оновлення сторінки. Використовуються лише твої збережені пороги; незадані значення не замінюються умовними 25%/75%. Бойові формули, витрати, відновлення, переміщення, таймери, закупівлі та виконання черги прямих наказів ще не підключені.</p>';
+  '<p class="help">Усі чотири шкали стартують із тестових 100%, незалежно від показників героя. Зміни та журнал не зберігаються після оновлення сторінки. Пороги беруться лише зі збережених індивідуальних налаштувань. Реальні бої, витрати, регенерація, поїздки, закупівлі й виконання наказів не працюють.</p>';
 }
 function heroCyclePanel(){
  return '<details class="hero-cycle"><summary>Автономний цикл героя <span>Покроковий тест переходів</span></summary>'+
@@ -999,7 +1018,7 @@ function refreshHeroCycleLive(key){
  if(journal)journal.innerHTML=c.journal.length?c.journal.map(s=>'<li>'+safe(s)+'</li>').join(''):'<li>Ще немає рішень.</li>';
  const t=heroCycleThresholds(state.hero),flee=c.active&&c.phase==='combat'&&t&&c.resource.HP<t.HP.low&&!c.escapedFailed;
  const disabled={
-  start:c.active,battle:!c.active||c.phase!=='hunt',finish:!c.active||c.phase!=='combat',
+  start:c.active||!t,battle:!c.active||c.phase!=='hunt',finish:!c.active||c.phase!=='combat',
   'flee-success':!flee,'flee-fail':!flee,reset:false
  };
  for(const [action,condition] of Object.entries(disabled)){
@@ -1228,8 +1247,8 @@ document.addEventListener('submit',ev=>{
   Object.assign(state.heroInstructions[state.hero],values);
   save();
   const status=document.getElementById('readinessDraft');
-  if(status)status.textContent='Межі збережено для цього героя · демо';
-  heroCycleEvent(state.hero,'thresholds');refreshHeroCycle();toast('Межі збережено в браузері');return;
+  if(status)status.textContent='Межі збережено. Для перевірки розгорни «Автономний цикл героя» та натисни «Запустити цикл».';
+  heroCycleEvent(state.hero,'thresholds');refreshHeroCycle();toast('Межі збережено. Тепер запусти тестовий цикл нижче.');return;
  }
  if(ev.target.id==='heroGoalForm'){
   ev.preventDefault();
