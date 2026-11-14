@@ -364,6 +364,13 @@
 .readiness-save-row small{flex:1;min-width:160px;font-size:10px;line-height:1.4;color:var(--muted)}
 .readiness-save-row .hero-guide-save{margin:0}
 @media(max-width:420px){.readiness-meter{padding:9px}.readiness-save-row .hero-guide-save{width:100%}}
+.readiness-meter--food .readiness-current-fill{background:#a5794b}
+.readiness-range[class*="readiness-range--return"]{z-index:4}
+.readiness-range[class*="readiness-range--ready"]{z-index:3}
+.readiness-range[class*="readiness-range--return"]::-webkit-slider-thumb{border-color:#dc9080;background:#512f2b}
+.readiness-range[class*="readiness-range--return"]::-moz-range-thumb{border-color:#dc9080;background:#512f2b}
+.readiness-legend[class*="readiness-legend--return"] i{background:#dc9080}
+.readiness-range:focus-visible{z-index:6}
 </style>
 </head>
 <body>
@@ -432,9 +439,10 @@ const HERO_BUY_POLICIES=[
  ['armor','Базове екіпірування'],
  ['supplies','Придбання припасів']
 ];
-const HERO_THRESHOLD_KEYS=['readyHP','readyMP','readyEnergy','returnEnergy'];
+const HERO_METRIC_THRESHOLDS=[['HP','HP · Здоров’я','hp'],['MP','MP · Мана','mp'],['Energy','Енергія','energy'],['Food','Ситість','food']];
+const HERO_THRESHOLD_KEYS=HERO_METRIC_THRESHOLDS.flatMap(([key])=>['return'+key,'ready'+key]);
 function initialHeroInstructions(){
- return {archetype:'',readyHP:'',readyMP:'',readyEnergy:'',returnEnergy:'',
+ return {archetype:'',readyHP:'',returnHP:'',readyMP:'',returnMP:'',readyEnergy:'',returnEnergy:'',readyFood:'',returnFood:'',
   purchases:{weapon:'on',armor:'on',supplies:''},goals:[]};
 }
 function normalizeHeroInstructions(value){
@@ -442,11 +450,17 @@ function normalizeHeroInstructions(value){
  if(!value||typeof value!=='object'||Array.isArray(value))return result;
  if(HERO_ARCHETYPE_EXAMPLES.some(([id])=>id===value.archetype))result.archetype=value.archetype;
  for(const k of HERO_THRESHOLD_KEYS){
-  const v=String(value[k]??'').trim();
-  if(v!==''&&/^\d+(?:\.\d+)?$/.test(v)&&Number.isFinite(Number(v)))result[k]=v;
+  const v=String(value[k]??'').trim(),n=Number(v);
+  if(v!==''&&/^\d+(?:\.\d+)?$/.test(v)&&Number.isFinite(n)&&n>=0&&n<=100){
+   const rounded=Math.round(n);
+   if((k.startsWith('ready')&&rounded>0)||(k.startsWith('return')&&rounded<100))result[k]=String(rounded);
+  }
  }
- if(result.readyEnergy!==''&&result.returnEnergy!==''&&Number(result.readyEnergy)<=Number(result.returnEnergy)){
-  result.readyEnergy='';result.returnEnergy='';
+ for(const [metric] of HERO_METRIC_THRESHOLDS){
+  const a='ready'+metric,b='return'+metric;
+  if(result[a]!==''&&result[b]!==''&&Number(result[a])<=Number(result[b])){
+   result[a]='';result[b]='';
+  }
  }
  for(const [key] of HERO_BUY_POLICIES){
   if(['on','off'].includes(value.purchases?.[key]))result.purchases[key]=value.purchases[key];
@@ -654,7 +668,7 @@ function heroGoalsRows(){
  </div>`).join(''):'<p class="muted">Особистих цілей ще немає.</p>';
 }
 
-const READINESS_RANGE_PLACEHOLDERS={readyHP:50,readyMP:50,readyEnergy:75,returnEnergy:25};
+const READINESS_RANGE_PLACEHOLDERS=Object.fromEntries(HERO_METRIC_THRESHOLDS.flatMap(([kind])=>[['return'+kind,25],['ready'+kind,75]]));
 function readinessPercent(p,key){
  const raw=String(p[key]??'').trim();
  if(raw!==''&&/^\d+(?:\.\d+)?$/.test(raw)&&Number(raw)<=100)return Math.round(Number(raw));
@@ -664,7 +678,7 @@ function readinessScale(p,kind,title,current,keys){
  const sliders=keys.map(([key,label])=>{
   const configured=readinessPercent(p,key);
   const pos=configured===null?READINESS_RANGE_PLACEHOLDERS[key]:configured;
-  return `<input type="range" class="readiness-range readiness-range--${key}" id="readinessSlider_${key}" name="${key}" min="${key==='readyEnergy'?1:0}" max="${key==='returnEnergy'?99:100}" step="1" value="${pos}" data-readiness-key="${key}" data-unset="${configured===null?'1':'0'}" aria-label="${safe(label)} у відсотках">`;
+  return `<input type="range" class="readiness-range readiness-range--${key}" id="readinessSlider_${key}" name="${key}" min="${key.startsWith('ready')?1:0}" max="${key.startsWith('return')?99:100}" step="1" value="${pos}" data-readiness-key="${key}" data-unset="${configured===null?'1':'0'}" aria-label="${safe(label)} у відсотках">`;
  }).join('');
  const legend=keys.map(([key,label])=>{
   const val=readinessPercent(p,key);
@@ -683,14 +697,13 @@ function updateReadinessSlider(input){
  const key=input.dataset.readinessKey;
  if(!HERO_THRESHOLD_KEYS.includes(key))return;
  let val=Math.round(Number(input.value));
- if(key==='readyEnergy'||key==='returnEnergy'){
-  const other=document.getElementById('readinessSlider_'+(key==='readyEnergy'?'returnEnergy':'readyEnergy'));
-  if(other&&other.dataset.unset==='0'){
-   if(key==='readyEnergy')val=Math.max(val,Number(other.value)+1);
-   else val=Math.min(val,Number(other.value)-1);
-  }
+ const ready=key.startsWith('ready'),metric=key.slice(ready?5:6);
+ const other=document.getElementById('readinessSlider_'+(ready?'return':'ready')+metric);
+ if(other&&other.dataset.unset==='0'){
+  if(ready)val=Math.max(val,Number(other.value)+1);
+  else val=Math.min(val,Number(other.value)-1);
  }
- val=Math.max(key==='readyEnergy'?1:0,Math.min(key==='returnEnergy'?99:100,val));
+ val=Math.max(ready?1:0,Math.min(ready?100:99,val));
  input.value=String(val);input.dataset.unset='0';
  const label=document.getElementById('readinessValue_'+key);
  if(label)label.textContent=val+'%';
@@ -700,7 +713,8 @@ function updateReadinessSlider(input){
 
 function heroInstructionSettings(){
  const p=state.heroInstructions[state.hero];
- const h=HEROES[state.hero],energy=DEMO_HERO_NEEDS[state.hero]?.[0]??65;
+ const h=HEROES[state.hero];
+ const [energy,food]=DEMO_HERO_NEEDS[state.hero]||[65,75];
  const hpPct=Math.max(0,Math.min(100,Math.round(h.hp)));
  const mpPct=Math.max(0,Math.min(100,Math.round(100*h.mp/Math.max(1,h.mpmax))));
  const policyRow=([key,label])=>`<label class="hero-policy-row"><span>${label}</span><select data-hero-policy="${key}" aria-label="${label}"><option value="" ${p.purchases[key]===''?'selected':''}>Не налаштовано</option><option value="on" ${p.purchases[key]==='on'?'selected':''}>Увімкнено</option><option value="off" ${p.purchases[key]==='off'?'selected':''}>Вимкнено</option></select></label>`;
@@ -710,18 +724,19 @@ function heroInstructionSettings(){
  </div>
  <div class="hero-guidance-grid">
  <details class="hero-guide-section" open>
-  <summary>Готовність та повернення <span>HP · MP · Енергія</span></summary>
+  <summary>Готовність та повернення <span>HP · MP · Енергія · Ситість</span></summary>
   <div class="hero-guide-body">
     <form id="heroReadinessForm">
      <div class="readiness-meter-list">
-      ${readinessScale(p,'hp','HP · Здоров’я',hpPct,[['readyHP','Початок експедиції']])}
-      ${readinessScale(p,'mp','MP · Мана',mpPct,[['readyMP','Початок експедиції']])}
-      ${readinessScale(p,'energy','Енергія',energy,[['returnEnergy','Повернення в місто'],['readyEnergy','Початок експедиції']])}
+      ${readinessScale(p,'hp','HP · Здоров’я',hpPct,[['returnHP','Місто / втеча'],['readyHP','Можна на полювання']])}
+      ${readinessScale(p,'mp','MP · Мана',mpPct,[['returnMP','Місто / втеча'],['readyMP','Можна на полювання']])}
+      ${readinessScale(p,'energy','Енергія',energy,[['returnEnergy','Місто / втеча'],['readyEnergy','Можна на полювання']])}
+      ${readinessScale(p,'food','Ситість',food,[['returnFood','Місто / втеча'],['readyFood','Можна на полювання']])}
      </div>
      <div class="readiness-save-row"><small id="readinessDraft">«—» — поріг не задано. Положення такого повзунка лише орієнтовне.</small><button class="button secondary hero-guide-save" type="submit">Зберегти межі</button></div>
-     <p class="help">Відсоткова шкала 0–100% — демонстрація UI. Поріг енергії для початку має бути строго вищим за поріг повернення.</p>
+     <p class="help">Червоний маркер — повернення до міста або спроба втечі під час бою. Золотий — мінімум для полювання. Для кожного показника поріг полювання має бути вищим. Відсотки й положення маркерів до збереження — UI-демо.</p>
     </form>
-    <p class="help">Для HP і MP погоджено лише поріг готовності. HP-втеча працює окремо; повернення за енергією не перериває бій.</p>
+    <p class="help">Якщо будь-який показник досягає нижньої межі: поза боєм — повернення до міста, у бою — спроба втечі. Полювання дозволене лише після досягнення верхньої межі всіх чотирьох. Бойовий алгоритм ще не підключений.</p>
   </div>
  </details>
  <details class="hero-guide-section">
@@ -907,8 +922,11 @@ document.addEventListener('submit',ev=>{
    if(!Number.isInteger(n)||n<0||n>100){toast('Поріг має бути від 0 до 100%');return}
    values[key]=String(n);
   }
-  if((values.readyEnergy==='')!==(values.returnEnergy==='')){toast('Встанови обидві межі енергії');return}
-  if(values.readyEnergy!==''&&Number(values.readyEnergy)<=Number(values.returnEnergy)){toast('Початок має бути вище повернення');return}
+  for(const [metric,label] of HERO_METRIC_THRESHOLDS){
+   const ready=values['ready'+metric],ret=values['return'+metric];
+   if((ready==='')!==(ret==='')){toast('Встанови обидва пороги для '+label);return}
+   if(ready!==''&&Number(ready)<=Number(ret)){toast('Полювання має бути вище порога повернення: '+label);return}
+  }
   Object.assign(state.heroInstructions[state.hero],values);
   save();
   const status=document.getElementById('readinessDraft');
