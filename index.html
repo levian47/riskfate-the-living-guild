@@ -259,6 +259,27 @@
 @media(max-width:1050px){.hero-rpg-layout{grid-template-columns:minmax(220px,.9fr) minmax(245px,1.1fr)}.rpg-section--inventory{grid-column:1/-1}.rpg-section--inventory .rpg-slot-grid{grid-template-columns:repeat(8,minmax(0,1fr))}}
 @media(max-width:670px){.hero-rpg-layout{grid-template-columns:minmax(0,1fr);gap:9px}.rpg-section--inventory{grid-column:auto}.rpg-section--inventory .rpg-slot-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.rpg-section{padding:10px}.rpg-section-help{min-height:0}.rpg-attribute-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:10px}.rpg-attribute{font-size:11px}.rpg-slot{min-height:52px}.rpg-action-footer{flex-wrap:wrap}}
 @media(max-width:370px){.rpg-attribute-grid{grid-template-columns:minmax(0,1fr)}.rpg-slot-grid{gap:5px}}
+
+/* Compact, closed-by-default weapon mastery within RPG character overview. */
+.rpg-attribute-stack{display:grid;gap:10px;min-width:0;align-content:start}
+.rpg-attribute-value{display:flex;align-items:center;gap:7px;flex:none}
+.rpg-attribute-value small{display:inline-block;color:#9d8967;font-size:9px;font-weight:650;border:1px solid #64513b;background:#322b24;padding:2px 4px;border-radius:4px;white-space:nowrap}
+.rpg-mastery{padding:0;align-self:start;overflow:hidden}
+.rpg-mastery-toggle{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;padding:10px 12px;cursor:pointer}
+.rpg-mastery-toggle::-webkit-details-marker{display:none}
+.rpg-mastery-toggle:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.rpg-mastery-title,.rpg-mastery-meta{display:flex;align-items:center;gap:6px}
+.rpg-mastery-title{font-size:13px;color:#e8d7b6;min-width:0}
+.rpg-mastery-title svg{color:var(--gold)}
+.rpg-mastery-meta{font-size:10px;color:var(--muted);white-space:nowrap}
+.rpg-mastery-meta svg{color:var(--gold);transition:transform .15s}
+.rpg-mastery[open] .rpg-mastery-meta svg{transform:rotate(180deg)}
+.rpg-mastery-body{border-top:1px solid var(--line);padding:8px 12px 12px}
+.rpg-mastery-body>p{font-size:10px;color:var(--muted);line-height:1.45;margin:0 0 9px}
+.rpg-mastery-rows{display:grid;gap:2px}
+.rpg-mastery-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #373b3d;font-size:11px;line-height:1.3}
+.rpg-mastery-row strong{color:#b9a17a;font-size:13px}
+.rpg-mastery-body p.rpg-mastery-footnote{margin:9px 0 0}
 </style>
 </head>
 <body>
@@ -430,12 +451,35 @@ function rpgSlotPanel(title,category,description){
   <div class="rpg-slot-grid" aria-label="${safe(title)}">${list.map((item,i)=>rpgSlot(category,item,i)).join('')}</div>
  </section>`;
 }
+
+const RPG_MASTERY_DIRECTIONS=[
+ 'Точність автоатак',
+ 'Точність навичок',
+ 'Шанс фізичного критичного удару',
+ 'Сила фізичного критичного удару',
+ 'Шанс магічного критичного удару',
+ 'Сила магічного критичного удару'
+];
+function rpgMastery(){
+ return `<details class="rpg-section rpg-mastery">
+  <summary class="rpg-mastery-toggle">
+   <span class="rpg-mastery-title">${icon('sword',18)}<strong>Майстерність зброї</strong></span>
+   <span class="rpg-mastery-meta">6 напрямів ${icon('down',16)}</span>
+  </summary>
+  <div class="rpg-mastery-body">
+   <p>Кожен тип зброї має окрему майстерність. Відкритий герой поки не має підключених даних майстерності.</p>
+   <div class="rpg-mastery-rows">${RPG_MASTERY_DIRECTIONS.map(name=>`<div class="rpg-mastery-row"><span>${safe(name)}</span><strong title="Значення не реалізовано">—</strong></div>`).join('')}</div>
+   <p class="rpg-mastery-footnote">Одночасно розвивається один вибраний напрямок для зброї, якою користується герой. Прогрес нараховується за перемоги, а не витратою EXP.</p>
+  </div>
+ </details>`;
+}
+
 function rpgAttributes(){
  return `<section class="rpg-section rpg-section--attributes">
-  <div class="rpg-section-head"><h2>Характеристики</h2><span>12 · 3D Pro</span></div>
-  <p class="rpg-section-help">Референсний перелік. Значення та розподіл характеристик у The Living Guild ще не визначено.</p>
-  <div class="rpg-attribute-grid">${RPG_ATTRIBUTE_REFERENCE.map(([id,label])=>`<button type="button" class="rpg-attribute" data-rpgstat="${id}" title="${safe(label)}: значення не визначено">
-    <span>${safe(label)}</span><strong aria-label="значення не визначено">—</strong>
+  <div class="rpg-section-head"><h2>Характеристики</h2><span>12 · розвиток за EXP</span></div>
+  <p class="rpg-section-help">Кожну характеристику можна підвищувати окремо за EXP. Значення, ціни та поділ на основні/додаткові ще не реалізовані.</p>
+  <div class="rpg-attribute-grid">${RPG_ATTRIBUTE_REFERENCE.map(([id,label])=>`<button type="button" class="rpg-attribute" data-rpgstat="${id}" title="${safe(label)}: підвищення за EXP (ще не реалізовано)">
+    <span>${safe(label)}</span><span class="rpg-attribute-value"><strong aria-label="значення не визначено">—</strong><small aria-hidden="true">+ EXP</small></span>
    </button>`).join('')}</div>
  </section>`;
 }
@@ -492,7 +536,7 @@ function renderHeroes(){
  if(tab==='overview'){
   content=`<div class="rpg-demo-strip">${icon('info',15)} <span><strong>Макет RPG-слотів.</strong> Іконки позначають зразки предметів і навичок, а не фактичне майно героя. Характеристики — з референсу 3D Pro; значення не визначені.</span></div>
   <div class="hero-rpg-layout">
-   ${rpgAttributes()}
+   ${`<div class="rpg-attribute-stack">${rpgAttributes()}${rpgMastery()}</div>`}
    ${rpgEquipmentAndSkills()}
    ${rpgInventoryPanel()}
   </div>
@@ -555,7 +599,7 @@ function completeRecipe(i){let p=state.production[i];if(!p||p.status!=='Запл
 function commandToggle(){let flag=document.getElementById('commandSelect')?.value==='Купити предмет';let a=document.getElementById('purchaseField'),b=document.getElementById('priceField');if(a)a.hidden=!flag;if(b)b.hidden=!flag}
 document.addEventListener('click',ev=>{let el=ev.target.closest('[data-nav],[data-building],[data-buildcatalog],[data-addbuilding],[data-zone],[data-openhero],[data-herotab],[data-rpgstat],[data-rpgslot],[data-recipe],[data-complete],[data-cancelorder],[data-removecommand],[data-modal],[data-closemodal],[data-demoquest]');if(!el){if(ev.target.id==='modal-overlay')document.getElementById('modal-root').innerHTML='';return}if(el.dataset.nav){go(el.dataset.nav);return}if(el.dataset.building){openBuilding(el.dataset.building);return}if(el.dataset.buildcatalog!==undefined){showBuildingCatalog();return}if(el.dataset.addbuilding){addPreviewBuilding(el.dataset.addbuilding);return}if(el.dataset.zone){if(HUNTING_ZONES.some(z=>z[0]===el.dataset.zone))go(el.dataset.zone);return}if(el.dataset.openhero!==undefined){state.hero=Number(el.dataset.openhero);state.heroTab='overview';go('heroes');return}if(el.dataset.herotab){if(['overview','orders'].includes(el.dataset.herotab)){state.heroTab=el.dataset.herotab;render()}return}if(el.dataset.rpgstat){
  const item=RPG_ATTRIBUTE_REFERENCE.find(x=>x[0]===el.dataset.rpgstat);
- if(item)modal(item[1],'Характеристика із референсного переліку Riskfate 3D Pro. Значення, тип (основна чи додаткова) та ефект у The Living Guild ще не затверджено.');
+ if(item)modal(item[1],'Характеристика належить до переліку з 12 напрямів розвитку героя. Гравець зможе підвищувати кожну з них окремо за EXP. Значення, вартість наступного підвищення, тип (основна чи додаткова) та вплив ще не реалізовані.');
  return
 }
 if(el.dataset.rpgslot){
