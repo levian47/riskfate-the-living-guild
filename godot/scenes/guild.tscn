@@ -1,0 +1,912 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/guild.gd" id="1_guild"]
+
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.105882, 0.117647, 0.129412, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.200000, 0.219608, 0.231373, 1)
+
+[sub_resource type="StyleBoxFlat" id="Metric"]
+bg_color = Color(0.133333, 0.149020, 0.164706, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.200000, 0.219608, 0.231373, 1)
+
+[sub_resource type="StyleBoxFlat" id="ButtonNormal"]
+bg_color = Color(0.160784, 0.176471, 0.188235, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.200000, 0.219608, 0.231373, 1)
+
+[sub_resource type="StyleBoxFlat" id="ButtonHover"]
+bg_color = Color(0.211765, 0.223529, 0.227451, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.200000, 0.219608, 0.231373, 1)
+
+[sub_resource type="StyleBoxFlat" id="ButtonSelected"]
+bg_color = Color(0.721569, 0.580392, 0.368627, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+
+[sub_resource type="StyleBoxFlat" id="Track"]
+bg_color = Color(0.207843, 0.219608, 0.227451, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+
+[sub_resource type="StyleBoxFlat" id="Fill"]
+bg_color = Color(0.788235, 0.643137, 0.415686, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+
+[node name="Guild" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1
+anchor_bottom = 1
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_guild")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1
+anchor_bottom = 1
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.066667, 0.074510, 0.082353, 1)
+mouse_filter = 2
+
+[node name="ContentScreen" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+offset_left = 238
+anchor_right = 1
+anchor_bottom = 1
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="Header" type="PanelContainer" parent="ContentScreen"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+custom_minimum_size = Vector2(0, 68)
+
+[node name="HeaderPad" type="MarginContainer" parent="ContentScreen/Header"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HeaderRow" type="HBoxContainer" parent="ContentScreen/Header/HeaderPad"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="MenuButton" type="Button" parent="ContentScreen/Header/HeaderPad/HeaderRow"]
+layout_mode = 2
+text = "☰"
+custom_minimum_size = Vector2(44, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+visible = false
+
+[node name="PageTitle" type="Label" parent="ContentScreen/Header/HeaderPad/HeaderRow"]
+layout_mode = 2
+text = "Гільдія"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 24
+size_flags_horizontal = 3
+
+[node name="Wallet" type="Label" parent="ContentScreen/Header/HeaderPad/HeaderRow"]
+layout_mode = 2
+text = "1 840 монет"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 13
+
+[node name="HeroCount" type="Label" parent="ContentScreen/Header/HeaderPad/HeaderRow"]
+layout_mode = 2
+text = "3 герої"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+
+[node name="PageScroll" type="ScrollContainer" parent="ContentScreen"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="BodyMargin" type="MarginContainer" parent="ContentScreen/PageScroll"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_bottom = 24
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="BodyContent" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin"]
+layout_mode = 2
+theme_override_constants/separation = 13
+size_flags_horizontal = 3
+
+[node name="MetricsGrid" type="GridContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent"]
+layout_mode = 2
+unique_name_in_owner = true
+columns = 4
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="BalanceCard" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Metric")
+size_flags_horizontal = 3
+
+[node name="BalancePad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/BalanceCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_bottom = 9
+
+[node name="BalanceInfo" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/BalanceCard/BalancePad"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="BalanceLabel" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/BalanceCard/BalancePad/BalanceInfo"]
+layout_mode = 2
+text = "Баланс"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="BalanceAmount" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/BalanceCard/BalancePad/BalanceInfo"]
+layout_mode = 2
+text = "1 840"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 21
+
+[node name="BalanceUnit" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/BalanceCard/BalancePad/BalanceInfo"]
+layout_mode = 2
+text = "монет"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 10
+
+[node name="HeroesCard" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Metric")
+size_flags_horizontal = 3
+
+[node name="HeroesPad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/HeroesCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_bottom = 9
+
+[node name="HeroesInfo" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/HeroesCard/HeroesPad"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="HeroesLabel" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/HeroesCard/HeroesPad/HeroesInfo"]
+layout_mode = 2
+text = "Герої"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="HeroesAmount" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/HeroesCard/HeroesPad/HeroesInfo"]
+layout_mode = 2
+text = "3 / 3"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 21
+
+[node name="ResourcesCard" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Metric")
+size_flags_horizontal = 3
+
+[node name="ResourcesPad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ResourcesCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_bottom = 9
+
+[node name="ResourcesInfo" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ResourcesCard/ResourcesPad"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ResourcesLabel" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ResourcesCard/ResourcesPad/ResourcesInfo"]
+layout_mode = 2
+text = "Ресурси"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="ResourcesAmount" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ResourcesCard/ResourcesPad/ResourcesInfo"]
+layout_mode = 2
+text = "206"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 21
+
+[node name="ResourcesUnit" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ResourcesCard/ResourcesPad/ResourcesInfo"]
+layout_mode = 2
+text = "од."
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 10
+
+[node name="ProcessesCard" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Metric")
+size_flags_horizontal = 3
+
+[node name="ProcessesPad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ProcessesCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_bottom = 9
+
+[node name="ProcessesInfo" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ProcessesCard/ProcessesPad"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ProcessesLabel" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ProcessesCard/ProcessesPad/ProcessesInfo"]
+layout_mode = 2
+text = "Процеси"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="ProcessesAmount" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/MetricsGrid/ProcessesCard/ProcessesPad/ProcessesInfo"]
+layout_mode = 2
+text = "1"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 21
+
+[node name="ContentGrid" type="GridContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent"]
+layout_mode = 2
+unique_name_in_owner = true
+columns = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 13
+theme_override_constants/v_separation = 13
+
+[node name="LeftStack" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid"]
+layout_mode = 2
+theme_override_constants/separation = 13
+size_flags_horizontal = 3
+
+[node name="RightStack" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid"]
+layout_mode = 2
+theme_override_constants/separation = 13
+size_flags_horizontal = 3
+
+[node name="Growth" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+size_flags_horizontal = 3
+
+[node name="GrowthPad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="GrowthStack" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad"]
+layout_mode = 2
+theme_override_constants/separation = 11
+
+[node name="GrowthTitle" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad/GrowthStack"]
+layout_mode = 2
+text = "Розвиток гільдії"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="ReputationRow" type="HBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad/GrowthStack"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Reputation" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad/GrowthStack/ReputationRow"]
+layout_mode = 2
+text = "Репутація · рівень 3"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 12
+size_flags_horizontal = 3
+
+[node name="ReputationValue" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad/GrowthStack/ReputationRow"]
+layout_mode = 2
+text = "6 320 / 8 000"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="ReputationProgress" type="ProgressBar" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad/GrowthStack"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 10)
+value = 79
+show_percentage = false
+theme_override_styles/background = SubResource("Track")
+theme_override_styles/fill = SubResource("Fill")
+
+[node name="Specialization" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad/GrowthStack"]
+layout_mode = 2
+text = "Спеціалізація"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="SpecInfo" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad/GrowthStack"]
+layout_mode = 2
+text = "Виробництво й експедиції"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="Slots" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Growth/GrowthPad/GrowthStack"]
+layout_mode = 2
+text = "Місць для героїв: 3 / 3"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="HeroesPanel" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+size_flags_horizontal = 3
+
+[node name="HeroesPanelPad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="HeroesPanelStack" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad"]
+layout_mode = 2
+theme_override_constants/separation = 11
+
+[node name="HeroesPanelTitle" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack"]
+layout_mode = 2
+text = "Герої гільдії"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="HeroTorenRow" type="HBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack"]
+layout_mode = 2
+theme_override_constants/separation = 9
+alignment = 1
+
+[node name="TorenAvatar" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroTorenRow"]
+layout_mode = 2
+text = "Т"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 21
+custom_minimum_size = Vector2(28, 0)
+
+[node name="TorenInfo" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroTorenRow"]
+layout_mode = 2
+theme_override_constants/separation = 2
+size_flags_horizontal = 3
+
+[node name="TorenName" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroTorenRow/TorenInfo"]
+layout_mode = 2
+text = "Торен · Воїн, р. 8"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+
+[node name="TorenState" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroTorenRow/TorenInfo"]
+layout_mode = 2
+text = "Полює · Темний ліс"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="HeroToren" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroTorenRow"]
+layout_mode = 2
+text = "Накази"
+custom_minimum_size = Vector2(72, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+
+[node name="HeroEliraRow" type="HBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack"]
+layout_mode = 2
+theme_override_constants/separation = 9
+alignment = 1
+
+[node name="EliraAvatar" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroEliraRow"]
+layout_mode = 2
+text = "Е"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 21
+custom_minimum_size = Vector2(28, 0)
+
+[node name="EliraInfo" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroEliraRow"]
+layout_mode = 2
+theme_override_constants/separation = 2
+size_flags_horizontal = 3
+
+[node name="EliraName" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroEliraRow/EliraInfo"]
+layout_mode = 2
+text = "Еліра · Мисливиця, р. 6"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+
+[node name="EliraState" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroEliraRow/EliraInfo"]
+layout_mode = 2
+text = "Повертається до міста"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="HeroElira" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroEliraRow"]
+layout_mode = 2
+text = "Накази"
+custom_minimum_size = Vector2(72, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+
+[node name="HeroBranRow" type="HBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack"]
+layout_mode = 2
+theme_override_constants/separation = 9
+alignment = 1
+
+[node name="BranAvatar" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroBranRow"]
+layout_mode = 2
+text = "Б"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 21
+custom_minimum_size = Vector2(28, 0)
+
+[node name="BranInfo" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroBranRow"]
+layout_mode = 2
+theme_override_constants/separation = 2
+size_flags_horizontal = 3
+
+[node name="BranName" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroBranRow/BranInfo"]
+layout_mode = 2
+text = "Бран · Збирач, р. 4"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+
+[node name="BranState" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroBranRow/BranInfo"]
+layout_mode = 2
+text = "Відпочиває у таверні"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="HeroBran" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack/HeroBranRow"]
+layout_mode = 2
+text = "Накази"
+custom_minimum_size = Vector2(72, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+
+[node name="ManageHeroes" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/HeroesPanel/HeroesPanelPad/HeroesPanelStack"]
+layout_mode = 2
+text = "Управління героями"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+
+[node name="Quick" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+size_flags_horizontal = 3
+
+[node name="QuickPad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="QuickStack" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad"]
+layout_mode = 2
+theme_override_constants/separation = 11
+
+[node name="QuickTitle" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad/QuickStack"]
+layout_mode = 2
+text = "Розділи управління"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="QuickGrid" type="GridContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad/QuickStack"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="QuickWarehouse" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad/QuickStack/QuickGrid"]
+layout_mode = 2
+text = "Склад"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="QuickProduction" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad/QuickStack/QuickGrid"]
+layout_mode = 2
+text = "Виробництво"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="QuickTrade" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad/QuickStack/QuickGrid"]
+layout_mode = 2
+text = "Торгівля"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="QuickOrders" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad/QuickStack/QuickGrid"]
+layout_mode = 2
+text = "Накази"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="QuickQuests" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad/QuickStack/QuickGrid"]
+layout_mode = 2
+text = "Завдання"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="QuickReports" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/LeftStack/Quick/QuickPad/QuickStack/QuickGrid"]
+layout_mode = 2
+text = "Звіти"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="Queues" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+size_flags_horizontal = 3
+
+[node name="QueuesPad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Queues"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="QueuesStack" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Queues/QueuesPad"]
+layout_mode = 2
+theme_override_constants/separation = 11
+
+[node name="QueuesTitle" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Queues/QueuesPad/QueuesStack"]
+layout_mode = 2
+text = "Черги та процеси"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="WorkTitle" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Queues/QueuesPad/QueuesStack"]
+layout_mode = 2
+text = "Заточування мечів"
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="WorkState" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Queues/QueuesPad/QueuesStack"]
+layout_mode = 2
+text = "У роботі · 8 хв"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="OpenProduction" type="Button" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Queues/QueuesPad/QueuesStack"]
+layout_mode = 2
+text = "Відкрити виробництво"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+
+[node name="Rules" type="PanelContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Panel")
+size_flags_horizontal = 3
+
+[node name="RulesPad" type="MarginContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Rules"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="RulesStack" type="VBoxContainer" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Rules/RulesPad"]
+layout_mode = 2
+theme_override_constants/separation = 11
+
+[node name="RulesTitle" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Rules/RulesPad/RulesStack"]
+layout_mode = 2
+text = "Економічні правила"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="Autosell" type="CheckButton" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Rules/RulesPad/RulesStack"]
+layout_mode = 2
+unique_name_in_owner = true
+button_pressed = true
+text = "Автоматичний продаж надлишків"
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+
+[node name="Autobuy" type="CheckButton" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Rules/RulesPad/RulesStack"]
+layout_mode = 2
+unique_name_in_owner = true
+text = "Автоматична закупівля"
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+
+[node name="PolicyNote" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent/ContentGrid/RightStack/Rules/RulesPad/RulesStack"]
+layout_mode = 2
+text = "Демонстраційні перемикачі. Угоди не виконуються."
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+unique_name_in_owner = true
+autowrap_mode = 3
+
+[node name="PrototypeNote" type="Label" parent="ContentScreen/PageScroll/BodyMargin/BodyContent"]
+layout_mode = 2
+text = "Усі показники демонстраційні. Серверна симуляція не підключена."
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="MobileShade" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1
+anchor_bottom = 1
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+z_index = 10
+mouse_filter = 0
+
+[node name="Sidebar" type="PanelContainer" parent="."]
+layout_mode = 1
+theme_override_styles/panel = SubResource("Panel")
+unique_name_in_owner = true
+anchors_preset = 9
+anchor_bottom = 1
+offset_right = 238
+grow_vertical = 2
+z_index = 11
+
+[node name="SidebarPad" type="MarginContainer" parent="Sidebar"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_bottom = 20
+
+[node name="SidebarStack" type="VBoxContainer" parent="Sidebar/SidebarPad"]
+layout_mode = 2
+theme_override_constants/separation = 7
+size_flags_vertical = 3
+
+[node name="Brand" type="Label" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "RISKFATE"
+theme_override_colors/font_color = Color(0.898039, 0.772549, 0.552941, 1)
+theme_override_font_sizes/font_size = 24
+
+[node name="BrandSub" type="Label" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "THE LIVING GUILD"
+theme_override_colors/font_color = Color(0.788235, 0.643137, 0.415686, 1)
+theme_override_font_sizes/font_size = 10
+
+[node name="LogoSpacer" type="Control" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 18)
+
+[node name="NavLabel" type="Label" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "НАВІГАЦІЯ"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 10
+
+[node name="CityNav" type="Button" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "Місто"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+alignment = 0
+
+[node name="GuildNav" type="Button" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "Гільдія"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonSelected")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+alignment = 0
+
+[node name="ForestNav" type="Button" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "Лісові стежки"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+alignment = 0
+
+[node name="RidgeNav" type="Button" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "Кам'яний кряж"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+alignment = 0
+
+[node name="DarkNav" type="Button" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "Чорні хащі"
+custom_minimum_size = Vector2(0, 44)
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonHover")
+theme_override_styles/pressed = SubResource("ButtonSelected")
+theme_override_colors/font_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_hover_color = Color(0.933333, 0.909804, 0.862745, 1)
+theme_override_colors/font_pressed_color = Color(0.066667, 0.074510, 0.082353, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+alignment = 0
+
+[node name="SideSpacer" type="Control" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SidebarFooter" type="Label" parent="Sidebar/SidebarPad/SidebarStack"]
+layout_mode = 2
+text = "Godot · тестовий клієнт"
+theme_override_colors/font_color = Color(0.643137, 0.623529, 0.584314, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="PendingDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Розділ не перенесено"
+dialog_text = "Цей розділ з'явиться в Godot на наступних етапах."
+
