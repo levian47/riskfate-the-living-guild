@@ -1,0 +1,163 @@
+name: Godot Web preview (PR 16)
+
+on:
+  push:
+    branches:
+      - feat/godot-guild-ui-pilot
+    paths:
+      - "godot/**"
+      - ".github/workflows/godot-web-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: godot-pr16-web-preview
+  cancel-in-progress: true
+
+jobs:
+  build-and-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out Godot source branch
+        uses: actions/checkout@v4
+        with:
+          path: source
+          persist-credentials: false
+
+      - name: Check out isolated preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview/godot-pr16-web
+          path: preview
+
+      - name: Download official Godot 4.7.2 and export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="4.7.2"
+          RELEASE="https://github.com/godotengine/godot/releases/download/${VERSION}-stable"
+          curl --fail --location --retry 3 --retry-all-errors \
+            "${RELEASE}/Godot_v${VERSION}-stable_linux.x86_64.zip" \
+            --output "$RUNNER_TEMP/godot.zip"
+          curl --fail --location --retry 3 --retry-all-errors \
+            "${RELEASE}/Godot_v${VERSION}-stable_export_templates.tpz" \
+            --output "$RUNNER_TEMP/export_templates.tpz"
+          mkdir -p "$RUNNER_TEMP/godot" "$RUNNER_TEMP/templates"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          unzip -q "$RUNNER_TEMP/export_templates.tpz" -d "$RUNNER_TEMP/templates"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
+          cp -a "$RUNNER_TEMP/templates/templates/." \
+            "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
+          echo "$RUNNER_TEMP/godot" >> "$GITHUB_PATH"
+
+      - name: Import and validate scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          Godot_v4.7.2-stable_linux.x86_64 --headless --editor \
+            --path source/godot --quit 2>&1 | tee "$RUNNER_TEMP/import.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Parser Error:|Failed loading resource' "$RUNNER_TEMP/import.log"; then
+            echo "::error::Godot import logged script or resource errors"
+            exit 1
+          fi
+
+      - name: Export real playable Web build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p source/godot/build/web
+          Godot_v4.7.2-stable_linux.x86_64 --headless \
+            --path source/godot \
+            --export-release "Web" "$(pwd)/source/godot/build/web/index.html" \
+            2>&1 | tee "$RUNNER_TEMP/export.log"
+          test -s source/godot/build/web/index.html
+          test -n "$(find source/godot/build/web -maxdepth 1 -name '*.wasm' -size +0c -print -quit)"
+          test -n "$(find source/godot/build/web -maxdepth 1 -name '*.pck' -size +0c -print -quit)"
+          test -n "$(find source/godot/build/web -maxdepth 1 -name '*.js' -size +0c -print -quit)"
+          touch source/godot/build/web/.nojekyll
+
+      - name: Verify HTTP-served Web export assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 \
+            --directory source/godot/build/web > "$RUNNER_TEMP/http.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          sleep 2
+          curl --fail --show-error http://127.0.0.1:8765/index.html -o /dev/null
+          for asset in source/godot/build/web/*.wasm source/godot/build/web/*.pck source/godot/build/web/*.js; do
+            filename="$(basename "$asset")"
+            curl --fail --silent --show-error --head "http://127.0.0.1:8765/$filename" -o /dev/null
+          done
+
+      - name: Upload build for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-pr16-web
+          path: source/godot/build/web/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Browser smoke test (Chromium screenshots)
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/godot-browser"
+          python3 -m http.server 8765 --bind 127.0.0.1 \
+            --directory source/godot/build/web > "$RUNNER_TEMP/browser-server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          sleep 2
+          for viewport in "1280,800" "393,852"; do
+            google-chrome --headless --no-sandbox --disable-dev-shm-usage \
+              --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+              --virtual-time-budget=12000 --window-size="$viewport" \
+              --screenshot="$RUNNER_TEMP/godot-browser/$viewport.png" \
+              "http://127.0.0.1:8765/index.html" \
+              > "$RUNNER_TEMP/godot-browser/$viewport.log" 2>&1
+            test -s "$RUNNER_TEMP/godot-browser/$viewport.png"
+          done
+
+      - name: Upload browser smoke screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: godot-pr16-browser-screenshots
+          path: ${{ runner.temp }}/godot-browser/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Publish isolated static Web preview (not main)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p preview/godot-preview
+          cp -a source/godot/build/web/. preview/godot-preview/
+          git -C preview config user.name "github-actions[bot]"
+          git -C preview config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C preview add godot-preview
+          if ! git -C preview diff --cached --quiet; then
+            git -C preview commit -m "build(preview): export Godot guild pilot from PR branch"
+            git -C preview push origin HEAD:preview/godot-pr16-web
+          fi
+
+      - name: Check public Web preview URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://raw.githack.com/levian47/riskfate-the-living-guild/preview/godot-pr16-web/godot-preview"
+          # A CDN can briefly return 403 while the new commit propagates.
+          curl --fail --silent --show-error --location --retry-all-errors \
+            --retry 8 --retry-delay 3 "$BASE/index.html" -o "$RUNNER_TEMP/external-preview.html"
+          test -s "$RUNNER_TEMP/external-preview.html"
+          for asset in index.wasm index.pck index.js; do
+            curl --fail --silent --show-error --location --head --retry-all-errors \
+              --retry 8 --retry-delay 3 "$BASE/$asset" -o "$RUNNER_TEMP/$asset.headers"
+          done
+          grep -qi 'content-type: *text/html' <(curl --silent --location --head "$BASE/index.html")
+          echo "Verified public Web preview: $BASE/index.html"
