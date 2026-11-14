@@ -17,7 +17,9 @@
 
 /* City hub v2: compact navigation, building catalog, hero monitoring. */
 .mobile-main-nav{display:none}
-.city-layout{display:grid;grid-template-columns:minmax(0,1fr) 276px;gap:17px;align-items:start}
+.city-layout{display:grid;grid-template-columns:minmax(0,1fr) 276px;grid-template-areas:"main heroes" "main events";grid-template-rows:auto 1fr;gap:17px;align-items:start}
+.city-main{grid-area:main}.city-heroes{grid-area:heroes;min-width:0}.city-events{grid-area:events;min-width:0}
+.hero-monitor summary{cursor:pointer;list-style:none}.hero-monitor summary::-webkit-details-marker{display:none}.hero-monitor summary:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}.hero-collapse-chevron{display:flex;color:var(--gold);transition:transform .16s}.hero-monitor[open] .hero-collapse-chevron{transform:rotate(180deg)}
 .city-layout .stack{min-width:0}
 .city-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:10px;padding:15px}
 .city-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;padding:16px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);color:var(--text);min-height:155px}
@@ -47,7 +49,7 @@
 .catalog-entry svg{color:var(--gold)}
 .catalog-modal{width:min(620px,calc(100vw - 28px));max-height:90dvh;overflow-y:auto}
 .back-city{margin-bottom:15px}
-@media(max-width:1100px){.city-layout{grid-template-columns:1fr}}
+@media(max-width:1100px){.city-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"heroes" "main" "events";grid-template-rows:auto}}
 @media (max-width:950px), (hover:none) and (pointer:coarse) and (max-width:1100px){
  .mobile-main-nav{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:8px 14px;background:#151719;border-bottom:1px solid var(--line)}
  .mobile-main-nav .nav-button{display:flex;justify-content:center;gap:7px;min-height:38px;padding:8px 6px;border-radius:8px;font-size:12px}
@@ -58,8 +60,39 @@
  .city-layout{gap:12px}
  .minihero-list{grid-template-columns:repeat(2,minmax(0,1fr))}
  .mini-hero{min-width:0}
+ .topbar{min-height:60px;padding:8px 12px}
+ .top-title{font-size:19px}
+ .menu-btn{min-width:44px;min-height:44px;display:grid;place-items:center}
+ .wallet-item{font-size:15px}
+ .mobile-main-nav{padding:8px 12px;gap:9px}
+ .mobile-main-nav .nav-button{min-height:44px;font-size:14px}
+ .layout{padding:14px 12px 30px}
+ .heading-row{gap:6px;margin-bottom:14px}
+ .heading-row h1{font-size:27px}
+ .subtitle{font-size:14px;line-height:1.4}
+ .eyebrow{font-size:11px}
+ .small-tag{font-size:12px}
+ .panel-head{padding:11px 13px}
+ .panel-head h2{font-size:15px}
+ .panel-body{padding:13px}
+ .city-layout{grid-template-areas:"heroes" "main" "events";grid-template-rows:auto;gap:12px}
+ .city-cards{gap:9px;padding:10px}
+ .city-card{min-height:118px;padding:12px;gap:6px}
+ .city-card strong{font-size:15px;line-height:1.25}
+ .city-card small{font-size:13px;line-height:1.3}
+ .city-card-icon{width:34px;height:34px}
+ .city-card-icon svg{width:21px;height:21px}
+ .minihero-list{padding:10px;gap:8px}
+ .mini-hero{min-height:64px;padding:8px;gap:9px}
+ .mini-portrait{width:40px;height:46px}
+ .mini-bars{gap:5px}
+ .mini-meter{height:6px}
+ .mini-location{font-size:12px}
+ .minihero-note{font-size:12px}
+ .zone-card,.catalog-entry{min-height:48px}
+ .metric-top,.help,.rowline small,.details small{font-size:13px}
 }
-@media(max-width:390px){.minihero-list{grid-template-columns:1fr}.zone-card{flex-wrap:wrap}}
+@media(max-width:360px){.minihero-list{grid-template-columns:1fr}.zone-card{flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -107,8 +140,8 @@ const BUILDING_CATALOG=[
 const HEROES=[{name:'Торен',cls:'Воїн',level:8,state:'Полює · Темний ліс',hp:72,mp:35,mpmax:60,command:[]},{name:'Еліра',cls:'Мисливиця',level:6,state:'Повертається до міста',hp:46,mp:38,mpmax:50,command:[]},{name:'Бран',cls:'Збирач',level:4,state:'Відпочиває у таверні',hp:91,mp:22,mpmax:40,command:[]}];
 const INITIAL_INVENTORY=[['Залізна руда','Сировина',86,'шт.'],['Деревина','Сировина',48,'шт.'],['Лікарські трави','Сировина',34,'шт.'],['Шкіра вовка','Трофеї',21,'шт.'],['Малий еліксир здоров’я','Витратні',12,'шт.'],['Залізний меч','Спорядження',3,'шт.'],['Шкіряний обладунок','Спорядження',2,'шт.']];
 const RECIPES=[{id:'sword',name:'Залізний меч',cost:'4 залізної руди · 2 деревини',use:{'Залізна руда':4,'Деревина':2},time:12,icon:'sword'},{id:'potion',name:'Малий еліксир здоров’я',cost:'3 лікарські трави',use:{'Лікарські трави':3},time:7,icon:'flask'},{id:'armor',name:'Шкіряний обладунок',cost:'5 шкур вовка',use:{'Шкіра вовка':5},time:18,icon:'shield'}];
-const initial=()=>({page:'city',hero:0,inventory:INITIAL_INVENTORY.map(([name,category,qty,unit])=>({name,category,qty,unit})),production:[{name:'Заточування мечів',time:'8 хв',status:'У роботі'}],orders:[],commands:[[],[],[]],activity:[{name:'З’явилося нове замовлення на ринку',time:'10 хв тому'},{name:'У таверні доступні нові найманці',time:'27 хв тому'},{name:'Зміна ціни на залізну руду',time:'1 год тому'},{name:'Прибула караванна група',time:'2 год тому'}],policies:{autosell:true,autobuy:false},guildGold:1840,filter:'',showMarket:'all',addedBuildings:[],zone:'zone-forest'});
-let state=initial();try{const raw=JSON.parse(localStorage.getItem('riskfate_ui_demo_v01')||'null');if(raw&&typeof raw==='object'){state={...state,...raw,page:NAV.some(n=>n[0]===raw.page)?raw.page:'city'};state.commands=Array.isArray(raw.commands)&&raw.commands.length===3?raw.commands:[[],[],[]];state.addedBuildings=Array.isArray(raw.addedBuildings)?[...new Set(raw.addedBuildings.filter(id=>BUILDING_CATALOG.some(x=>x[3]===id)))]:[];state.zone=['zone-forest','zone-ridge','zone-dark'].includes(raw.zone)?raw.zone:'zone-forest';}}catch(_e){}
+const initial=()=>({page:'city',hero:0,inventory:INITIAL_INVENTORY.map(([name,category,qty,unit])=>({name,category,qty,unit})),production:[{name:'Заточування мечів',time:'8 хв',status:'У роботі'}],orders:[],commands:[[],[],[]],activity:[{name:'З’явилося нове замовлення на ринку',time:'10 хв тому'},{name:'У таверні доступні нові найманці',time:'27 хв тому'},{name:'Зміна ціни на залізну руду',time:'1 год тому'},{name:'Прибула караванна група',time:'2 год тому'}],policies:{autosell:true,autobuy:false},guildGold:1840,filter:'',showMarket:'all',addedBuildings:[],zone:'zone-forest',heroesExpanded:true});
+let state=initial();try{const raw=JSON.parse(localStorage.getItem('riskfate_ui_demo_v01')||'null');if(raw&&typeof raw==='object'){state={...state,...raw,page:NAV.some(n=>n[0]===raw.page)?raw.page:'city'};state.commands=Array.isArray(raw.commands)&&raw.commands.length===3?raw.commands:[[],[],[]];state.addedBuildings=Array.isArray(raw.addedBuildings)?[...new Set(raw.addedBuildings.filter(id=>BUILDING_CATALOG.some(x=>x[3]===id)))]:[];state.zone=['zone-forest','zone-ridge','zone-dark'].includes(raw.zone)?raw.zone:'zone-forest';state.heroesExpanded=raw.heroesExpanded!==false;}}catch(_e){}
 function save(){try{localStorage.setItem('riskfate_ui_demo_v01',JSON.stringify(state))}catch(_e){}}
 function money(n){return Number(n).toLocaleString('uk-UA')}
 function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -138,7 +171,7 @@ function miniHero(h,i){
  const bars=vals.map(([label,value,key])=>'<span class="mini-meter '+key+'" role="meter" aria-label="'+label+' '+safe(h.name)+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+value+'" title="'+label+': '+value+'%"><span style="width:'+Math.max(0,Math.min(100,value))+'%"></span></span>').join('');
  return '<button class="mini-hero" type="button" data-openhero="'+i+'" aria-label="'+safe(h.name)+'. '+safe(h.state)+'. Відкрити героя"><span class="mini-portrait" aria-hidden="true">'+safe(h.name.slice(0,1))+'</span><span class="mini-right"><span class="mini-bars">'+bars+'</span><span class="mini-location">'+icon('pin',12)+safe(location)+'</span></span></button>'
 }
-function heroMonitor(){return panel('Герої гільдії','heroes','<div class="minihero-list">'+HEROES.map(miniHero).join('')+'</div><div class="panel-body minihero-note">Статичні демопоказники; симуляція ще не працює.</div>')}
+function heroMonitor(){return '<details class="panel hero-monitor" '+(state.heroesExpanded?'open':'')+'><summary class="panel-head"><h2>'+icon('heroes')+'Герої гільдії</h2><span class="hero-collapse-chevron">'+icon('down',18)+'</span></summary><div class="minihero-list">'+HEROES.map(miniHero).join('')+'</div><div class="panel-body minihero-note">Статичні демопоказники; симуляція ще не працює.</div></details>'}
 function renderHunting(){
  const zones=[['zone-forest','Лісова околиця','1–5'],['zone-ridge','Скелясті схили','6–10'],['zone-dark','Темні хащі','11–20']];
  return header('Світ / полювання','Зони полювання','Перелік зон і діапазонів рівнів монстрів. Дані нижче — тимчасові приклади.')+
@@ -171,9 +204,9 @@ function addPreviewBuilding(id){
 function activityPanel(){return panel('Події міста','calendar',`<div class="panel-body">${state.activity.slice(0,5).map(e=>`<div class="rowline event-line"><span class="event-dot"></span><div class="details"><strong>${safe(e.name)}</strong><small>${safe(e.time)}</small></div></div>`).join('')}</div>`)}
 function renderCity(){
  return header('Світ / місто','Місто','Будівлі та міські об’єкти. Кожна установа має власний інтерфейс.','UI-прототип')+
- '<div class="city-layout"><div class="stack">'+panel('Будівлі та об’єкти','city','<div class="city-cards">'+cityBuildings()+'</div>')+
+ '<div class="city-layout"><div class="stack city-main">'+panel('Будівлі та об’єкти','city','<div class="city-cards">'+cityBuildings()+'</div>')+
  panel('Міські оголошення','mail','<div class="panel-body"><p class="help">Поточні оголошення в прототипі демонстраційні.</p><button type="button" class="button secondary spaced" data-nav="quests">Переглянути завдання</button></div>')+
- '</div><div class="stack">'+heroMonitor()+activityPanel()+'</div></div>'
+ '</div><div class="city-heroes">'+heroMonitor()+'</div><div class="city-events">'+activityPanel()+'</div></div>'
 }
 function guildHeroes(){return HEROES.map((h,i)=>`<div class="hero-row"><div class="avatar">${h.name[0]}</div><div><strong>${h.name} <span class="muted">· ${h.cls}, р. ${h.level}</span></strong><small>${h.state}</small></div><button class="button ghost tiny" data-openhero="${i}">Накази</button></div>`).join('')}
 function renderGuild(){return header('Керування / моя гільдія','Гільдія «Срібний шлях»','Герої, ресурси, виробництво та економічні правила в одному місці.','Ранг III')+`<div class="metrics">${metric('Баланс',money(state.guildGold),'coin','монет')}${metric('Герої','3 / 3','heroes','')}${metric('Запаси ресурсів',state.inventory.reduce((a,b)=>a+b.qty,0),'warehouse','од.')}${metric('Активні процеси',String(state.production.length),'clock','')}</div><div class="content-grid"><div class="stack">${panel('Розвиток гільдії','guild',`<div class="panel-body"><div class="split-label"><strong>Репутація · рівень 3</strong><span class="muted">6 320 / 8 000</span></div><div class="progress"><div style="width:79%"></div></div><div class="rowline"><div class="details"><strong>Спеціалізація</strong><small>Виробництво й експедиції</small></div><span class="pill ash">Демо</span></div><div class="rowline"><div class="details"><strong>Місць для героїв</strong><small>3 найнято · 3 доступно</small></div><span class="trailing">3 / 3</span></div></div>`)}${panel('Герої гільдії','heroes',`<div class="panel-body">${guildHeroes()}<button class="button secondary spaced" data-nav="heroes">Управління героями</button></div>`)}${panel('Розділи управління','settings',`<div class="panel-body"><div class="quicklist"><button class="quick" data-nav="warehouse">${icon('warehouse')}Склад</button><button class="quick" data-nav="production">${icon('anvil')}Виробництво</button><button class="quick" data-nav="market">${icon('market')}Торгівля</button><button class="quick" data-nav="heroes">${icon('heroes')}Накази</button><button class="quick" data-nav="quests">${icon('quests')}Завдання</button><button class="quick" data-nav="stats">${icon('stats')}Звіти</button></div></div>`)}</div><div class="stack">${panel('Черги та процеси','clock',`<div class="panel-body">${state.production.length?state.production.slice(0,5).map(p=>`<div class="activity">${icon('anvil')}<div><strong>${safe(p.name)}</strong><small>${safe(p.status)} · ${safe(p.time)}</small></div></div>`).join(''):'<div class="no-data">Активних процесів немає</div>'}<button class="button secondary spaced" data-nav="production">Відкрити виробництво</button></div>`)}${panel('Економічні правила','settings',`<div class="panel-body"><div class="rowline"><div class="details"><strong>Автоматичний продаж надлишків</strong><small>Лише демонстрація перемикача</small></div><input aria-label="Автоматичний продаж" type="checkbox" data-policy="autosell" ${state.policies.autosell?'checked':''}></div><div class="rowline"><div class="details"><strong>Автоматична закупівля</strong><small>Лише демонстрація перемикача</small></div><input aria-label="Автоматична закупівля" type="checkbox" data-policy="autobuy" ${state.policies.autobuy?'checked':''}></div><p class="help">У реальній грі потрібні ціни, ліміти й правила. Тут угоди не виконуються.</p></div>`)}</div></div>`}
@@ -206,6 +239,7 @@ function completeRecipe(i){let p=state.production[i];if(!p||p.status!=='Запл
 function commandToggle(){let flag=document.getElementById('commandSelect')?.value==='Купити предмет';let a=document.getElementById('purchaseField'),b=document.getElementById('priceField');if(a)a.hidden=!flag;if(b)b.hidden=!flag}
 document.addEventListener('click',ev=>{let el=ev.target.closest('[data-nav],[data-building],[data-buildcatalog],[data-addbuilding],[data-zone],[data-openhero],[data-recipe],[data-complete],[data-cancelorder],[data-removecommand],[data-modal],[data-closemodal],[data-demoquest]');if(!el){if(ev.target.id==='modal-overlay')document.getElementById('modal-root').innerHTML='';return}if(el.dataset.nav){go(el.dataset.nav);return}if(el.dataset.building){openBuilding(el.dataset.building);return}if(el.dataset.buildcatalog!==undefined){showBuildingCatalog();return}if(el.dataset.addbuilding){addPreviewBuilding(el.dataset.addbuilding);return}if(el.dataset.zone){state.zone=el.dataset.zone;go('zone');return}if(el.dataset.openhero!==undefined){state.hero=Number(el.dataset.openhero);go('heroes');return}if(el.dataset.recipe){addRecipe(el.dataset.recipe);return}if(el.dataset.complete!==undefined){completeRecipe(Number(el.dataset.complete));return}if(el.dataset.cancelorder!==undefined){state.orders.splice(Number(el.dataset.cancelorder),1);toast('Демозаявку скасовано');render();return}if(el.dataset.removecommand!==undefined){state.commands[state.hero].splice(Number(el.dataset.removecommand),1);render();return}if(el.dataset.modal){modal({inventory:'Інвентар героя',equip:'Екіпірування',skills:'Навички'}[el.dataset.modal], 'Цей розділ буде деталізовано після погодження характеристик героїв та слотів.');return}if(el.dataset.closemodal){document.getElementById('modal-root').innerHTML='';return}if(el.dataset.demoquest){modal(el.dataset.demoquest,'Завдання наведене для демонстрації інтерфейсу. Систему прийняття та виконання контрактів ще не підключено.');return}});
 document.addEventListener('submit',ev=>{if(ev.target.id==='commandForm'){ev.preventDefault();let f=new FormData(ev.target),cmd=f.get('cmd');if(cmd==='Купити предмет'){let item=String(f.get('item')||'').trim(),price=Number(f.get('maxprice'));if(!item||!(price>0)){toast('Вкажіть назву товару й максимальну ціну');return}cmd=`Купити «${item}» (до ${price} монет)`}state.commands[state.hero].push(cmd);toast('Наказ додано до локальної черги');render()}if(ev.target.id==='marketForm'){ev.preventDefault();let f=new FormData(ev.target),qty=Number(f.get('qty')),price=Number(f.get('price'));if(!Number.isSafeInteger(qty)||qty<1||!Number.isSafeInteger(price)||price<1){toast('Перевір кількість і ціну');return}state.orders.push({type:String(f.get('type')),item:String(f.get('item')),qty,price});toast('Демонстраційну заявку створено без реальної торгівлі');render()}});
+document.addEventListener('toggle',ev=>{if(ev.target.matches('details.hero-monitor')){state.heroesExpanded=ev.target.open;save()}},true);
 document.addEventListener('change',ev=>{if(ev.target.id==='commandSelect'){commandToggle()}if(ev.target.id==='marketFilter'){state.showMarket=ev.target.value;render()}if(ev.target.dataset.policy){state.policies[ev.target.dataset.policy]=ev.target.checked;save();toast('Налаштування збережено лише в цьому браузері')}});
 document.addEventListener('input',ev=>{if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
 document.getElementById('menu').innerHTML=icon('menu');document.getElementById('menu').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('shade').classList.toggle('show')});document.getElementById('shade').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')});document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){document.getElementById('modal-root').innerHTML='';document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')}});
