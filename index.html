@@ -887,6 +887,8 @@ function heroCycleReconcile(i){
  if(c.phase==='combat'){
   if(c.resource.HP<t.HP.low&&!c.escapedFailed){
    c.reason='Лише HP нижче нижнього порога дозволяє спробу втечі. Успіх не розраховується — вкажи результат вручну.';
+  }else if(c.resource.HP<t.HP.low&&c.escapedFailed){
+   c.reason='Втеча в тесті не вдалася. Бій триває; подальші спроби втечі тут не моделюються.';
   }else if(atLow.length){
    c.reason='Поточний бій не переривається через MP, енергію чи ситість. Після завершення потрібне відновлення: '+list(atLow)+'.';
   }else c.reason='Сутичка триває. Завершення бою та шкода задаються тестовими подіями.';
@@ -959,17 +961,17 @@ function heroCycleEvent(i,event,key,value){
 function heroCycleInner(i){
  const c=HERO_CYCLE_DEMOS[i],thresholds=heroCycleThresholds(i),canFlee=c.active&&c.phase==='combat'&&thresholds&&c.resource.HP<thresholds.HP.low&&!c.escapedFailed;
  const controls=HERO_METRIC_THRESHOLDS.map(([key,label])=>
-  '<label class="hero-cycle-range"><span>'+safe(label)+' <strong>'+c.resource[key]+'%</strong></span>'+
+  '<label class="hero-cycle-range"><span>'+safe(label)+' <strong id="heroCycleValue_'+key+'">'+c.resource[key]+'%</strong></span>'+
   '<input type="range" min="0" max="100" step="1" value="'+c.resource[key]+'" data-cycle-resource="'+key+'" aria-label="Тестовий ресурс '+safe(label)+'"></label>').join('');
  const btn=(id,label,disabled)=>'<button type="button" class="button secondary" data-cycle-action="'+id+'" '+(disabled?'disabled':'')+'>'+label+'</button>';
  const log=c.journal.length?c.journal.map(s=>'<li>'+safe(s)+'</li>').join(''):'<li>Ще немає рішень.</li>';
- return '<div class="hero-cycle-state"><strong>'+safe(HERO_CYCLE_LABELS[c.phase])+(c.active?' · активний стенд':' · не запущено')+'</strong><p>'+safe(c.reason)+'</p></div>'+
+ return '<div class="hero-cycle-state" id="heroCycleState"><strong>'+safe(HERO_CYCLE_LABELS[c.phase])+(c.active?' · активний стенд':' · не запущено')+'</strong><p>'+safe(c.reason)+'</p></div>'+
   '<div class="hero-cycle-ranges">'+controls+'</div>'+
   '<div class="hero-cycle-buttons">'+btn('start','Запустити цикл',c.active)+btn('battle','Почати тестовий бій',!c.active||c.phase!=='hunt')+
   btn('finish','Завершити бій',!c.active||c.phase!=='combat')+
   btn('flee-success','Втеча вдалася',!canFlee)+btn('flee-fail','Втеча не вдалася',!canFlee)+
   btn('reset','Скинути стенд',false)+'</div>'+
-  '<div class="hero-cycle-journal"><strong>Журнал переходів</strong><ol>'+log+'</ol></div>'+
+  '<div class="hero-cycle-journal"><strong>Журнал переходів</strong><ol id="heroCycleLog">'+log+'</ol></div>'+
   '<p class="help">Тестові ресурси й журнал не змінюють героя та не зберігаються після оновлення сторінки. Використовуються лише твої збережені пороги; незадані значення не замінюються умовними 25%/75%. Бойові формули, витрати, відновлення, переміщення, таймери, закупівлі та виконання черги прямих наказів ще не підключені.</p>';
 }
 function heroCyclePanel(){
@@ -979,6 +981,28 @@ function heroCyclePanel(){
 function refreshHeroCycle(){
  const root=document.getElementById('heroCycleBody');
  if(root)root.innerHTML=heroCycleInner(state.hero);
+}
+
+function refreshHeroCycleLive(key){
+ const c=HERO_CYCLE_DEMOS[state.hero],value=document.getElementById('heroCycleValue_'+key);
+ if(value)value.textContent=c.resource[key]+'%';
+ const box=document.getElementById('heroCycleState');
+ if(box){
+  const title=box.querySelector('strong'),reason=box.querySelector('p');
+  if(title)title.textContent=HERO_CYCLE_LABELS[c.phase]+(c.active?' · активний стенд':' · не запущено');
+  if(reason)reason.textContent=c.reason;
+ }
+ const journal=document.getElementById('heroCycleLog');
+ if(journal)journal.innerHTML=c.journal.length?c.journal.map(s=>'<li>'+safe(s)+'</li>').join(''):'<li>Ще немає рішень.</li>';
+ const t=heroCycleThresholds(state.hero),flee=c.active&&c.phase==='combat'&&t&&c.resource.HP<t.HP.low&&!c.escapedFailed;
+ const disabled={
+  start:c.active,battle:!c.active||c.phase!=='hunt',finish:!c.active||c.phase!=='combat',
+  'flee-success':!flee,'flee-fail':!flee,reset:false
+ };
+ for(const [action,condition] of Object.entries(disabled)){
+  const btn=document.querySelector('[data-cycle-action="'+action+'"]');
+  if(btn)btn.disabled=condition;
+ }
 }
 
 function heroInstructionSettings(){
@@ -1231,7 +1255,7 @@ if(ev.target.dataset.heroPolicy){
  }
 }
 if(ev.target.id==='marketFilter'){state.showMarket=ev.target.value;render()}if(ev.target.dataset.policy){state.policies[ev.target.dataset.policy]=ev.target.checked;save();toast('Налаштування збережено лише в цьому браузері')}});
-document.addEventListener('input',ev=>{if(ev.target.dataset?.readinessKey){updateReadinessSlider(ev.target);refreshRecoverySandbox()}if(ev.target.dataset?.recoveryResource)refreshRecoverySandbox();if(ev.target.dataset?.cycleResource){if(heroCycleEvent(state.hero,'resource',ev.target.dataset.cycleResource,ev.target.value))refreshHeroCycle()}if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
+document.addEventListener('input',ev=>{if(ev.target.dataset?.readinessKey){updateReadinessSlider(ev.target);refreshRecoverySandbox()}if(ev.target.dataset?.recoveryResource)refreshRecoverySandbox();if(ev.target.dataset?.cycleResource){if(heroCycleEvent(state.hero,'resource',ev.target.dataset.cycleResource,ev.target.value))refreshHeroCycleLive(ev.target.dataset.cycleResource)}if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
 document.getElementById('menu').innerHTML=icon('menu');document.getElementById('menu').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('shade').classList.toggle('show')});document.getElementById('shade').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')});document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){document.getElementById('modal-root').innerHTML='';document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')}});
 render();
 </script>
