@@ -395,6 +395,34 @@
 .recovery-sandbox-result p{margin:0;font-size:12px}
 .recovery-sandbox-result small{color:var(--muted);font-size:11px;line-height:1.4}
 @media(max-width:420px){.recovery-sandbox-resources{grid-template-columns:minmax(0,1fr)}}
+
+/* Compact event-driven cycle tester: entirely separate from persisted game/UI state. */
+.hero-cycle{display:block;min-width:0;border:1px solid var(--line);border-radius:10px;background:#202427;margin:12px 0;overflow:hidden}
+.hero-cycle>summary{cursor:pointer;padding:12px 15px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:750;list-style:none}
+.hero-cycle>summary::-webkit-details-marker{display:none}
+.hero-cycle>summary span{font-size:11px;color:var(--muted);font-weight:500}
+.hero-cycle>summary:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+/* Explicitly override legacy ".hero-cycle>div{display:flex}" used by older hero rows. */
+.hero-cycle>.hero-cycle-body{box-sizing:border-box;width:100%;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:11px;padding:12px;border-top:1px solid var(--line);color:var(--text);font-size:12px}
+.hero-cycle>.hero-cycle-body>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.hero-cycle-instructions{display:grid;gap:5px}
+.hero-cycle-instructions strong{font-size:12px;color:var(--gold2)}
+.hero-cycle-instructions p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.hero-cycle-state{border:1px solid #56482f;background:#2b2924;padding:11px 12px;border-radius:8px}
+.hero-cycle-state strong{color:var(--gold2);font-size:13px}
+.hero-cycle-state p{font-size:12px;line-height:1.5;margin:6px 0 0}
+.hero-cycle-ranges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hero-cycle-range{min-width:0;display:grid;gap:5px}
+.hero-cycle-range span{display:flex;justify-content:space-between;gap:8px;font-size:12px}
+.hero-cycle-range strong{color:var(--gold2)}
+.hero-cycle-range input{width:100%;height:32px;margin:0;accent-color:var(--gold);touch-action:pan-y}
+.hero-cycle-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.hero-cycle-buttons .button{min-width:0;white-space:normal;line-height:1.25;font-size:11px;min-height:42px;padding:8px}
+.hero-cycle-journal{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+.hero-cycle-journal>strong{font-size:12px;color:var(--text)}
+.hero-cycle-journal ol{margin:8px 0 0;padding-left:20px;display:grid;gap:6px;line-height:1.5}
+.hero-cycle-body>.help{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+@media(max-width:600px){.hero-cycle-ranges{grid-template-columns:minmax(0,1fr)}.hero-cycle>summary{align-items:flex-start}.hero-cycle>.hero-cycle-body{padding:11px}}
 </style>
 </head>
 <body>
@@ -817,6 +845,188 @@ function refreshRecoverySandbox(){
  target.innerHTML=recoverySandboxResultHtml(recoverySandboxDecision(values,limits,document.getElementById('recoverySandboxMode')?.value||'hunt',flags));
 }
 
+
+/* Event-driven UI-only hero cycle: no combat formulas, travel timers, transactions or approved recovery priority. */
+function freshHeroCycle(i){
+ // Full test-only resources make the first transition demonstrable; never change HEROES.
+ return {active:false,phase:'prepare',escapedFailed:false,
+  resource:{HP:100,MP:100,Energy:100,Food:100},
+  reason:'Спершу збережи пороги, потім запусти тестовий цикл.',journal:[]};
+}
+const HERO_CYCLE_DEMOS=Array.from({length:HEROES.length},(_,i)=>freshHeroCycle(i));
+const HERO_CYCLE_LABELS={prepare:'Підготовка',hunt:'Полювання',combat:'Бій',recover:'Відновлення'};
+function heroCycleThresholds(i){
+ const p=state.heroInstructions[i],limits={};
+ for(const [key] of HERO_METRIC_THRESHOLDS){
+  const low=readinessPercent(p,'return'+key),high=readinessPercent(p,'ready'+key);
+  if(low===null||high===null||low>=high)return null;
+  limits[key]={low,high};
+ }
+ return limits;
+}
+function heroCycleMissingThresholds(i){
+ const p=state.heroInstructions[i];
+ return HERO_METRIC_THRESHOLDS.filter(([key])=>{
+  const low=readinessPercent(p,'return'+key),high=readinessPercent(p,'ready'+key);
+  return low===null||high===null||low>=high;
+ }).map(([,label])=>label);
+}
+function heroCycleLog(c,msg){
+ c.journal.unshift(msg);
+ if(c.journal.length>12)c.journal.length=12;
+}
+function heroCycleMove(c,phase,why){
+ if(c.phase!==phase){
+  c.phase=phase;
+  heroCycleLog(c,HERO_CYCLE_LABELS[phase]+': '+why);
+ }
+}
+function heroCycleReconcile(i){
+ const c=HERO_CYCLE_DEMOS[i];
+ if(!c.active)return;
+ const t=heroCycleThresholds(i);
+ if(!t){
+  // Updating settings must not end an ongoing fight.
+  if(c.phase!=='combat')c.phase='prepare';
+  const missing=heroCycleMissingThresholds(i).join(', ');
+  c.reason=c.phase==='combat'
+   ?'Пороги потрібно зберегти: '+missing+'. Бій продовжується, оцінка переходів призупинена.'
+   :'Не налаштовані пороги: '+missing+'. Встанови дві межі для кожного показника й натисни «Зберегти межі».';
+  return;
+ }
+ const keys=HERO_METRIC_THRESHOLDS.map(([key])=>key);
+ const atLow=keys.filter(key=>c.resource[key]<=t[key].low);
+ const belowHigh=keys.filter(key=>c.resource[key]<t[key].high);
+ const names={HP:'HP',MP:'MP',Energy:'Енергія',Food:'Ситість'};
+ const list=keys=>keys.map(key=>names[key]).join(', ');
+ if(c.phase==='combat'){
+  if(c.resource.HP<t.HP.low&&!c.escapedFailed){
+   c.reason='Лише HP нижче нижнього порога дозволяє спробу втечі. Успіх не розраховується — вкажи результат вручну.';
+  }else if(c.resource.HP<t.HP.low&&c.escapedFailed){
+   c.reason='Втеча в тесті не вдалася. Бій триває; подальші спроби втечі тут не моделюються.';
+  }else if(atLow.length){
+   c.reason='Поточний бій не переривається через MP, енергію чи ситість. Після завершення потрібне відновлення: '+list(atLow)+'.';
+  }else c.reason='Сутичка триває. Завершення бою та шкода задаються тестовими подіями.';
+  return;
+ }
+ if(c.phase==='hunt'&&atLow.length){
+  heroCycleMove(c,'recover','досягнуто нижню межу: '+list(atLow));
+ }
+ if(c.phase==='prepare'&&atLow.length){
+  heroCycleMove(c,'recover','недостатній ресурс під час підготовки: '+list(atLow));
+ }
+ if(c.phase==='recover'){
+  if(belowHigh.length===0){
+   heroCycleMove(c,'hunt','усі чотири верхні пороги досягнуто');
+   c.reason='Полювання дозволено: усі чотири показники відповідають верхнім порогам.';
+  }else{
+   c.reason='Триває відновлення. Для полювання ще бракує: '+list(belowHigh)+'. Спосіб відновлення й потреба в місті визначаються окремим незатвердженим алгоритмом.';
+  }
+ }else if(c.phase==='prepare'){
+  if(belowHigh.length===0){
+   heroCycleMove(c,'hunt','готовність усіх ресурсів підтверджено');
+   c.reason='Полювання дозволено: усі чотири показники відповідають верхнім порогам.';
+  }else c.reason='Підготовка не завершена. До верхніх меж не дійшли: '+list(belowHigh)+'.';
+ }else{
+  c.reason='Герой продовжує полювання. Нове відновлення запускається лише за нижніми межами.';
+ }
+}
+function heroCycleEvent(i,event,key,value){
+ const c=HERO_CYCLE_DEMOS[i];
+ if(!c)return false;
+ if(event==='reset'){
+  HERO_CYCLE_DEMOS[i]=freshHeroCycle(i);
+ }else if(event==='resource'){
+  const n=Number(value);
+  if(!Object.prototype.hasOwnProperty.call(c.resource,key)||!Number.isFinite(n))return false;
+  c.resource[key]=Math.max(0,Math.min(100,Math.round(n)));
+  heroCycleReconcile(i);
+ }else if(event==='start'){
+  if(c.active||!heroCycleThresholds(i))return false;
+  c.active=true;
+  heroCycleLog(c,'Тестовий цикл запущено; перевіряємо встановлені пороги.');
+  heroCycleReconcile(i);
+ }else if(event==='battle'){
+  if(!c.active||c.phase!=='hunt')return false;
+  c.phase='combat';c.escapedFailed=false;
+  heroCycleLog(c,'Почався тестовий бій; шкода не розраховується.');
+  heroCycleReconcile(i);
+ }else if(event==='finish'){
+  if(!c.active||c.phase!=='combat')return false;
+  const t=heroCycleThresholds(i);
+  c.phase=t&&HERO_METRIC_THRESHOLDS.some(([k])=>c.resource[k]<=t[k].low)?'recover':'hunt';
+  heroCycleLog(c,'Тестовий бій завершився; подальший стан визначено за порогами.');
+  heroCycleReconcile(i);
+ }else if(event==='flee-success'||event==='flee-fail'){
+  const t=heroCycleThresholds(i);
+  if(!t||!c.active||c.phase!=='combat'||c.escapedFailed||c.resource.HP>=t.HP.low)return false;
+  if(event==='flee-success'){
+   c.phase='recover';
+   heroCycleLog(c,'Успішність втечі задана вручну; переходимо до відновлення.');
+  }else{
+   c.escapedFailed=true;
+   heroCycleLog(c,'Невдалу втечу задано вручну; бій триває.');
+  }
+  heroCycleReconcile(i);
+ }else if(event==='thresholds'){
+  heroCycleReconcile(i);
+ }else return false;
+ return true;
+}
+function heroCycleInner(i){
+ const c=HERO_CYCLE_DEMOS[i],thresholds=heroCycleThresholds(i),missing=heroCycleMissingThresholds(i),canFlee=c.active&&c.phase==='combat'&&thresholds&&c.resource.HP<thresholds.HP.low&&!c.escapedFailed;
+ const readinessText=missing.length
+  ?'Пороги: '+(4-missing.length)+'/4. Потрібно зберегти: '+missing.join(', ')+'.'
+  :'Пороги: 4/4 збережені. Стенд готовий до запуску.';
+ const guideText=c.active
+  ?'Змінюй ресурси повзунками та натискай «Почати тестовий бій» / «Завершити бій». Після бою система сама оцінить пороги.'
+  :'1. Встанови й збережи пороги вище. 2. Натисни «Запустити цикл». 3. Знижуй тестові ресурси й спостерігай за реакцією.';
+ const controls=HERO_METRIC_THRESHOLDS.map(([key,label])=>
+  '<label class="hero-cycle-range"><span>'+safe(label)+' <strong id="heroCycleValue_'+key+'">'+c.resource[key]+'%</strong></span>'+
+  '<input type="range" min="0" max="100" step="1" value="'+c.resource[key]+'" data-cycle-resource="'+key+'" aria-label="Тестовий ресурс '+safe(label)+'"></label>').join('');
+ const btn=(id,label,disabled)=>'<button type="button" class="button secondary" data-cycle-action="'+id+'" '+(disabled?'disabled':'')+'>'+label+'</button>';
+ const log=c.journal.length?c.journal.map(s=>'<li>'+safe(s)+'</li>').join(''):'<li>Ще немає рішень.</li>';
+ return '<div class="hero-cycle-instructions"><strong>'+safe(readinessText)+'</strong><p>'+safe(guideText)+'</p></div>'+
+  '<div class="hero-cycle-state" id="heroCycleState"><strong>'+safe(HERO_CYCLE_LABELS[c.phase])+(c.active?' · активний стенд':' · не запущено')+'</strong><p>'+safe(c.reason)+'</p></div>'+
+  '<div class="hero-cycle-ranges">'+controls+'</div>'+
+  '<div class="hero-cycle-buttons">'+btn('start','Запустити цикл',c.active||!thresholds)+btn('battle','Почати тестовий бій',!c.active||c.phase!=='hunt')+
+  btn('finish','Завершити бій',!c.active||c.phase!=='combat')+
+  btn('flee-success','Втеча вдалася',!canFlee)+btn('flee-fail','Втеча не вдалася',!canFlee)+
+  btn('reset','Скинути стенд',false)+'</div>'+
+  '<div class="hero-cycle-journal"><strong>Журнал переходів</strong><ol id="heroCycleLog">'+log+'</ol></div>'+
+  '<p class="help">Усі чотири шкали стартують із тестових 100%, незалежно від показників героя. Зміни та журнал не зберігаються після оновлення сторінки. Пороги беруться лише зі збережених індивідуальних налаштувань. Реальні бої, витрати, регенерація, поїздки, закупівлі й виконання наказів не працюють.</p>';
+}
+function heroCyclePanel(){
+ return '<details class="hero-cycle"><summary>Автономний цикл героя <span>Покроковий тест переходів</span></summary>'+
+  '<div class="hero-cycle-body" id="heroCycleBody">'+heroCycleInner(state.hero)+'</div></details>';
+}
+function refreshHeroCycle(){
+ const root=document.getElementById('heroCycleBody');
+ if(root)root.innerHTML=heroCycleInner(state.hero);
+}
+
+function refreshHeroCycleLive(key){
+ const c=HERO_CYCLE_DEMOS[state.hero],value=document.getElementById('heroCycleValue_'+key);
+ if(value)value.textContent=c.resource[key]+'%';
+ const box=document.getElementById('heroCycleState');
+ if(box){
+  const title=box.querySelector('strong'),reason=box.querySelector('p');
+  if(title)title.textContent=HERO_CYCLE_LABELS[c.phase]+(c.active?' · активний стенд':' · не запущено');
+  if(reason)reason.textContent=c.reason;
+ }
+ const journal=document.getElementById('heroCycleLog');
+ if(journal)journal.innerHTML=c.journal.length?c.journal.map(s=>'<li>'+safe(s)+'</li>').join(''):'<li>Ще немає рішень.</li>';
+ const t=heroCycleThresholds(state.hero),flee=c.active&&c.phase==='combat'&&t&&c.resource.HP<t.HP.low&&!c.escapedFailed;
+ const disabled={
+  start:c.active||!t,battle:!c.active||c.phase!=='hunt',finish:!c.active||c.phase!=='combat',
+  'flee-success':!flee,'flee-fail':!flee,reset:false
+ };
+ for(const [action,condition] of Object.entries(disabled)){
+  const btn=document.querySelector('[data-cycle-action="'+action+'"]');
+  if(btn)btn.disabled=condition;
+ }
+}
+
 function heroInstructionSettings(){
  const p=state.heroInstructions[state.hero];
  const h=HEROES[state.hero];
@@ -935,7 +1145,7 @@ function renderHeroes(){
   </div>`;
  }else if(tab==='orders'){
   const queue=count?state.commands[i].map((cmd,k)=>`<div class="rowline"><div class="details"><strong>${k+1}. ${safe(cmd)}</strong><small>Заплановано · демонстрація</small></div><button type="button" class="button ghost tiny" data-removecommand="${k}" aria-label="Видалити наказ ${k+1}">${icon('cross',13)}</button></div>`).join(''):'<p class="muted">Додаткових наказів немає. Герой діє за автономним алгоритмом.</p>';
-  content=`${heroInstructionSettings()}<div class="hero-direct-orders-heading"><h2>Прямі накази</h2><span>Додаткові команди</span></div><div class="hero-orders-grid">
+  content=`${heroInstructionSettings()}${heroCyclePanel()}<div class="hero-direct-orders-heading"><h2>Прямі накази</h2><span>Додаткові команди</span></div><div class="hero-orders-grid">
    ${panel('Прямий наказ','arrow',`<form class="panel-body" id="commandForm">
     <label class="field"><span>Дія героя</span><select name="cmd" id="commandSelect">
      <option value="Повернутися в місто">Повернутися в місто</option>
@@ -986,7 +1196,7 @@ function openBuilding(target){
 function addRecipe(id){let r=RECIPES.find(x=>x.id===id);if(!r)return;let missing=Object.entries(r.use).filter(([name,n])=>(state.inventory.find(v=>v.name===name)?.qty||0)<n);if(missing.length){toast('Недостатньо матеріалів: '+missing.map(([n])=>n).join(', '));return}for(const [name,n] of Object.entries(r.use))state.inventory.find(v=>v.name===name).qty-=n;state.production.push({name:r.name,time:r.time+' хв',status:'Заплановано'});toast('Демозамовлення додано. Матеріали списані зі складу.');render()}
 function completeRecipe(i){let p=state.production[i];if(!p||p.status!=='Заплановано')return;let stock=state.inventory.find(v=>v.name===p.name);if(stock)stock.qty++;else state.inventory.push({name:p.name,category:'Готова продукція',qty:1,unit:'шт.'});state.production.splice(i,1);toast('Демовиробництво завершене: '+p.name);render()}
 function commandToggle(){let flag=document.getElementById('commandSelect')?.value==='Купити предмет';let a=document.getElementById('purchaseField'),b=document.getElementById('priceField');if(a)a.hidden=!flag;if(b)b.hidden=!flag}
-document.addEventListener('click',ev=>{let el=ev.target.closest('[data-nav],[data-building],[data-buildcatalog],[data-addbuilding],[data-zone],[data-openhero],[data-herotab],[data-rpgstat],[data-rpgslot],[data-goalup],[data-goaldown],[data-goalremove],[data-recipe],[data-complete],[data-cancelorder],[data-removecommand],[data-modal],[data-closemodal],[data-demoquest]');if(!el){if(ev.target.id==='modal-overlay')document.getElementById('modal-root').innerHTML='';return}if(el.dataset.nav){go(el.dataset.nav);return}if(el.dataset.building){openBuilding(el.dataset.building);return}if(el.dataset.buildcatalog!==undefined){showBuildingCatalog();return}if(el.dataset.addbuilding){addPreviewBuilding(el.dataset.addbuilding);return}if(el.dataset.zone){if(HUNTING_ZONES.some(z=>z[0]===el.dataset.zone))go(el.dataset.zone);return}if(el.dataset.openhero!==undefined){state.hero=Number(el.dataset.openhero);state.heroTab='overview';go('heroes');return}if(el.dataset.herotab){if(['overview','orders'].includes(el.dataset.herotab)){state.heroTab=el.dataset.herotab;render()}return}if(el.dataset.rpgstat){
+document.addEventListener('click',ev=>{let el=ev.target.closest('[data-nav],[data-building],[data-buildcatalog],[data-addbuilding],[data-zone],[data-openhero],[data-herotab],[data-rpgstat],[data-rpgslot],[data-goalup],[data-goaldown],[data-goalremove],[data-recipe],[data-complete],[data-cancelorder],[data-removecommand],[data-modal],[data-closemodal],[data-demoquest],[data-cycle-action]');if(!el){if(ev.target.id==='modal-overlay')document.getElementById('modal-root').innerHTML='';return}if(el.dataset.cycleAction){if(heroCycleEvent(state.hero,el.dataset.cycleAction))refreshHeroCycle();return}if(el.dataset.nav){go(el.dataset.nav);return}if(el.dataset.building){openBuilding(el.dataset.building);return}if(el.dataset.buildcatalog!==undefined){showBuildingCatalog();return}if(el.dataset.addbuilding){addPreviewBuilding(el.dataset.addbuilding);return}if(el.dataset.zone){if(HUNTING_ZONES.some(z=>z[0]===el.dataset.zone))go(el.dataset.zone);return}if(el.dataset.openhero!==undefined){state.hero=Number(el.dataset.openhero);state.heroTab='overview';go('heroes');return}if(el.dataset.herotab){if(['overview','orders'].includes(el.dataset.herotab)){state.heroTab=el.dataset.herotab;render()}return}if(el.dataset.rpgstat){
  const item=RPG_ATTRIBUTE_REFERENCE.find(x=>x[0]===el.dataset.rpgstat);
  if(item)modal(item[1],(item[2]==='primary'?'Основна характеристика: її рівень розвитку враховується при визначенні рівня й рангу героя. ':'Додаткова характеристика: її розвиток безпосередньо не змінює рівень або ранг героя. ')+'Кожна характеристика покращується окремо за EXP. Значення, точна вартість і формула впливу ще не реалізовані.');
  return
@@ -1037,8 +1247,8 @@ document.addEventListener('submit',ev=>{
   Object.assign(state.heroInstructions[state.hero],values);
   save();
   const status=document.getElementById('readinessDraft');
-  if(status)status.textContent='Межі збережено для цього героя · демо';
-  toast('Межі збережено в браузері');return;
+  if(status)status.textContent='Межі збережено. Для перевірки розгорни «Автономний цикл героя» та натисни «Запустити цикл».';
+  heroCycleEvent(state.hero,'thresholds');refreshHeroCycle();toast('Межі збережено. Тепер запусти тестовий цикл нижче.');return;
  }
  if(ev.target.id==='heroGoalForm'){
   ev.preventDefault();
@@ -1067,7 +1277,7 @@ if(ev.target.dataset.heroPolicy){
  }
 }
 if(ev.target.id==='marketFilter'){state.showMarket=ev.target.value;render()}if(ev.target.dataset.policy){state.policies[ev.target.dataset.policy]=ev.target.checked;save();toast('Налаштування збережено лише в цьому браузері')}});
-document.addEventListener('input',ev=>{if(ev.target.dataset?.readinessKey){updateReadinessSlider(ev.target);refreshRecoverySandbox()}if(ev.target.dataset?.recoveryResource)refreshRecoverySandbox();if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
+document.addEventListener('input',ev=>{if(ev.target.dataset?.readinessKey){updateReadinessSlider(ev.target);refreshRecoverySandbox()}if(ev.target.dataset?.recoveryResource)refreshRecoverySandbox();if(ev.target.dataset?.cycleResource){if(heroCycleEvent(state.hero,'resource',ev.target.dataset.cycleResource,ev.target.value))refreshHeroCycleLive(ev.target.dataset.cycleResource)}if(ev.target.id==='warehouseSearch'){state.filter=ev.target.value;let rows=document.getElementById('warehouseRows');if(rows)rows.innerHTML=renderWarehouseRows(state.inventory.filter(x=>x.name.toLocaleLowerCase('uk-UA').includes(state.filter.toLocaleLowerCase('uk-UA'))));save()}});
 document.getElementById('menu').innerHTML=icon('menu');document.getElementById('menu').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('shade').classList.toggle('show')});document.getElementById('shade').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')});document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){document.getElementById('modal-root').innerHTML='';document.getElementById('sidebar').classList.remove('open');document.getElementById('shade').classList.remove('show')}});
 render();
 </script>
