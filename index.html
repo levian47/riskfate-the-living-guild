@@ -399,13 +399,12 @@ const HERO_ARCHETYPE_EXAMPLES=[['fighter','Воїн'],['tank','Танк'],['rang
 const HERO_BUY_POLICIES=[
  ['weapon','Базова зброя'],
  ['armor','Базове екіпірування'],
- ['skills','Придбання навичок'],
  ['supplies','Придбання припасів']
 ];
 const HERO_THRESHOLD_KEYS=['readyHP','readyMP','readyEnergy','returnEnergy'];
 function initialHeroInstructions(){
  return {archetype:'',readyHP:'',readyMP:'',readyEnergy:'',returnEnergy:'',
-  purchases:{weapon:'on',armor:'on',skills:'',supplies:''},goals:[]};
+  purchases:{weapon:'on',armor:'on',supplies:''},goals:[]};
 }
 function normalizeHeroInstructions(value){
  const result=initialHeroInstructions();
@@ -420,9 +419,9 @@ function normalizeHeroInstructions(value){
  }
  for(const [key] of HERO_BUY_POLICIES){
   if(['on','off'].includes(value.purchases?.[key]))result.purchases[key]=value.purchases[key];
-  else if(['skills','supplies'].includes(key))result.purchases[key]='';
+  else if(key==='supplies')result.purchases[key]='';
  }
- if(Array.isArray(value.goals))result.goals=value.goals.filter(x=>x&&typeof x==='object'&&['item','upgrade'].includes(x.type)&&typeof x.name==='string'&&x.name.trim()).map(x=>({type:x.type,name:x.name.trim().slice(0,60)}));
+ if(Array.isArray(value.goals))result.goals=value.goals.filter(x=>x&&typeof x==='object'&&['item','upgrade','skill'].includes(x.type)&&typeof x.name==='string'&&x.name.trim()).map(x=>({type:x.type,name:x.name.trim().slice(0,60)}));
  return result;
 }
 
@@ -615,7 +614,7 @@ function heroVital(label,value,max,tone,isDemo=false){
 function heroGoalsRows(){
  const goals=state.heroInstructions[state.hero].goals;
  return goals.length?goals.map((goal,i)=>`<div class="hero-goal-row">
-  <div class="hero-goal-copy"><strong>${i+1}. ${safe(goal.name)}</strong><small>${goal.type==='item'?'Предмет':'Покращення'}</small></div>
+  <div class="hero-goal-copy"><strong>${i+1}. ${safe(goal.name)}</strong><small>${goal.type==='skill'?'Навичка':goal.type==='item'?'Предмет':'Покращення'}</small></div>
   <div class="hero-goal-controls">
    <button type="button" class="hero-goal-btn" data-goalup="${i}" ${i===0?'disabled':''} aria-label="Підняти ціль ${i+1}">↑</button>
    <button type="button" class="hero-goal-btn" data-goaldown="${i}" ${i===goals.length-1?'disabled':''} aria-label="Опустити ціль ${i+1}">↓</button>
@@ -663,7 +662,7 @@ function heroInstructionSettings(){
   <summary>Автоматичні закупівлі <span>Особисте золото</span></summary>
   <div class="hero-guide-body">
    <div class="hero-policy-list">${HERO_BUY_POLICIES.map(policyRow).join('')}</div>
-   <p class="help">Автозакупівля базової зброї та екіпірування спочатку увімкнена згідно з погодженим стартовим правилом. Навички й припаси налаштовуються індивідуально.</p>
+   <p class="help">Автозакупівля базової зброї та екіпірування спочатку увімкнена. Припаси налаштовуються індивідуально. Навички придбаваються тільки через особисту чергу цілей, а не цей розділ.</p>
    <div class="hero-rule-note"><strong>Харчування — критична потреба</strong><small>Їжа купується й споживається автоматично за власне золото. Це не необов’язкова ціль, тому окремого перемикача вимкнення тут немає.</small></div>
   </div>
  </details>
@@ -682,11 +681,11 @@ function heroInstructionSettings(){
   <div class="hero-goals-body">
    <div id="heroGoalsList">${heroGoalsRows()}</div>
    <form id="heroGoalForm" class="hero-goal-form">
-    <label class="field"><span>Тип цілі</span><select name="type"><option value="item">Предмет</option><option value="upgrade">Покращення</option></select></label>
+    <label class="field"><span>Тип цілі</span><select name="type"><option value="item">Предмет</option><option value="upgrade">Покращення</option><option value="skill">Навичка</option></select></label>
     <label class="field hero-goal-name"><span>Назва цілі</span><input name="name" maxlength="60" required placeholder="Наприклад, сталевий меч"></label>
     <button class="button secondary" type="submit">Додати ціль</button>
    </form>
-   <p class="help">Це демонстраційна черга, не реальні заявки на ринку. Нестача коштів чи товару не повинна автоматично пропускати першу ціль.</p>
+   <p class="help">У цю чергу також додаються навички для придбання. Це демонстраційна черга, не реальні заявки на ринку. Нестача коштів чи товару не повинна автоматично пропускати першу ціль.</p>
   </div>
  </section>`;
 }
@@ -839,7 +838,7 @@ document.addEventListener('submit',ev=>{
  if(ev.target.id==='heroGoalForm'){
   ev.preventDefault();
   const data=new FormData(ev.target),type=String(data.get('type')||'item'),name=String(data.get('name')||'').trim();
-  if(!['item','upgrade'].includes(type)||!name||name.length>60){toast('Вкажи коректну назву цілі до 60 символів');return}
+  if(!['item','upgrade','skill'].includes(type)||!name||name.length>60){toast('Вкажи коректну назву цілі до 60 символів');return}
   state.heroInstructions[state.hero].goals.push({type,name});
   save();
   const list=document.getElementById('heroGoalsList');if(list)list.innerHTML=heroGoalsRows();
